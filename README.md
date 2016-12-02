@@ -18,9 +18,9 @@ The low-tech bash script `build_sgemm.sh` will try to build the test for a 64-bi
 * REP_EXP - exponent of the number of repetitions of the test, ie. 1eE
 * PRINT_MATX - print out C on the standard output (for debugging)
 
-To tell what prefetch works best on a fiven CPU, use something along the following (pick ALT wisely):
+To tell what prefetch works best on a given CPU and matrix dimension, use something along the following (pick ALT wisely):
 
-	for i in `seq 0 10`; do ./build_sgemm.sh -DALT=1 -DPREFETCH=`echo "1024 + 512 * $i" | bc` -DPRINT_MATX=0 -DMATX_SIZE=512 -DREP_EXP=1 ; ./sgemm ; done
+	for i in `seq 0 10`; do ./build_sgemm.sh -DALT=1 -DPREFETCH=`echo "1024 + 512 * $i" | bc` -DMATX_SIZE=512 -DREP_EXP=1 ; ./sgemm ; done
 
 Best results measured in SP flops/clock by the formula:
 
