@@ -13,7 +13,7 @@ The low-tech bash script `build_sgemm.sh` will try to build the test for a 64-bi
 	* 1 - 16-element-wide version suitable for autovectorizers
 	* 2 - 64-element-wide AVX256 version
 	* 3 - 128-element-wide AVX256 version
-* `PREFETCH` - amount of floats to prefetch in the innermost loop (0 for no prefetch; unused in the scalar version)
+* `PREFETCH` - distance, in floats, to prefetch in the innermost loop (0 for no prefetch; unused in the scalar version)
 * `MATX_SIZE` - dimension of the square matrices A, B & C
 * `REP_EXP` - exponent of the number of repetitions of the test, ie. 1eEXP
 * `PRINT_MATX` - print out C on the standard output (for debugging)
