@@ -28,6 +28,20 @@ static void fprint_matx(FILE* const out, const float (&mat)[MATX_SIZE][MATX_SIZE
 	}
 }
 
+#if PREFETCH != 0
+	enum {
+		prefetch_ro = 0,
+		prefetch_rw = 1,
+	};
+	enum {
+		prefetch_nt = 0,
+		prefetch_t1 = 1,
+		prefetch_t2 = 2,
+		prefetch_t3 = 3
+	};
+
+#endif
+
 #if ALT == 0
 static void matmul(
 	const float (&ma)[MATX_SIZE][MATX_SIZE],
@@ -54,17 +68,6 @@ static void matmul(
 		for (size_t k = 0; k < MATX_SIZE; k += 16) {
 
 #if PREFETCH != 0
-			enum {
-				prefetch_ro = 0,
-				prefetch_rw = 1,
-			};
-			enum {
-				prefetch_nt = 0,
-				prefetch_t1 = 1,
-				prefetch_t2 = 2,
-				prefetch_t3 = 3
-			};
-
 			// 16 * sizeof(fp32) = 2^6 bytes = 1 * 64-byte cachelines
 			__builtin_prefetch(((const int8_t*) &mc[j][k + PREFETCH / 2]) + 0 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
 
@@ -92,16 +95,6 @@ static void matmul(
 			for (size_t i = 0; i < MATX_SIZE; ++i) {
 
 #if PREFETCH != 0
-				enum {
-					prefetch_ro = 0,
-					prefetch_rw = 1,
-				};
-				enum {
-					prefetch_nt = 0,
-					prefetch_t1 = 1,
-					prefetch_t2 = 2,
-					prefetch_t3 = 3
-				};
 				// 16 * sizeof(fp32) = 2^6 bytes = 1 * 64-byte cachelines
 				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
 
@@ -180,17 +173,6 @@ static void matmul(
 		for (size_t k = 0; k < MATX_SIZE; k += 64) {
 
 #if PREFETCH != 0
-			enum {
-				prefetch_ro = 0,
-				prefetch_rw = 1,
-			};
-			enum {
-				prefetch_nt = 0,
-				prefetch_t1 = 1,
-				prefetch_t2 = 2,
-				prefetch_t3 = 3
-			};
-
 			// 64 * sizeof(fp32) = 2^8 bytes = 4 * 64-byte cachelines
 			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 0 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
 			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 1 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
@@ -291,17 +273,6 @@ static void matmul(
 		for (size_t k = 0; k < MATX_SIZE; k += 128) {
 
 #if PREFETCH != 0
-			enum {
-				prefetch_ro = 0,
-				prefetch_rw = 1,
-			};
-			enum {
-				prefetch_nt = 0,
-				prefetch_t1 = 1,
-				prefetch_t2 = 2,
-				prefetch_t3 = 3
-			};
-
 			// 128 * sizeof(fp32) = 2^9 bytes = 8 * 64-byte cachelines
 			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 0 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
 			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 1 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
