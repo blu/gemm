@@ -8,7 +8,7 @@ Usage
 
 The low-tech bash script `build_sgemm.sh` will try to build the test for a 64-bit host architecture - substitute the compiler for one of your choice. Macros of interest, passed with `-D` on the command line:
 
-* `ALT` - alternative implementation (by the unrolling of the innermost loop)
+* `ALT` - implementation alternatives (by the unrolling of the innermost loop)
 	* 0 - scalar version
 	* 1 - 16-element-wide version suitable for autovectorizers
 	* 2 - 64-element-wide AVX256 version
