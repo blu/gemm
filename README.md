@@ -8,14 +8,14 @@ Usage
 
 The low-tech bash script `build_sgemm.sh` will try to build the test for a 64-bit host architecture - substitute the compiler for one of your choice. Macros of interest, passed with `-D` on the command line:
 
-* `ALT` - alternative implementation
+* `ALT` - alternative implementation (by the unrolling of the innermost loop)
 	* 0 - scalar version
 	* 1 - 16-element-wide version suitable for autovectorizers
 	* 2 - 64-element-wide AVX256 version
 	* 3 - 128-element-wide AVX256 version
 * `PREFETCH` - amount of floats to prefetch in the innermost loop (0 for no prefetch; unused in the scalar version)
 * `MATX_SIZE` - dimension of the square matrices A, B & C
-* `REP_EXP` - exponent of the number of repetitions of the test, ie. 1eE
+* `REP_EXP` - exponent of the number of repetitions of the test, ie. 1eEXP
 * `PRINT_MATX` - print out C on the standard output (for debugging)
 
 Tips
