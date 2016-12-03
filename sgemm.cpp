@@ -29,16 +29,16 @@ static void fprint_matx(FILE* const out, const float (&mat)[MATX_SIZE][MATX_SIZE
 }
 
 #if PREFETCH != 0
-	enum {
-		prefetch_ro = 0,
-		prefetch_rw = 1,
-	};
-	enum {
-		prefetch_nt = 0,
-		prefetch_t1 = 1,
-		prefetch_t2 = 2,
-		prefetch_t3 = 3
-	};
+enum {
+	prefetch_ro = 0,
+	prefetch_rw = 1,
+};
+enum {
+	prefetch_nt = 0,
+	prefetch_t1 = 1,
+	prefetch_t2 = 2,
+	prefetch_t3 = 3
+};
 
 #endif
 
@@ -312,6 +312,11 @@ static void matmul(
 				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 2 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
 				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 3 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
 
+				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 4 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 5 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 6 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 7 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+
 #endif
 				const __m256 mmb0   = _mm256_load_ps(&mb[i][k +   0]);
 				const __m256 mmb8   = _mm256_load_ps(&mb[i][k +   8]);
@@ -322,13 +327,6 @@ static void matmul(
 				const __m256 mmb48  = _mm256_load_ps(&mb[i][k +  48]);
 				const __m256 mmb56  = _mm256_load_ps(&mb[i][k +  56]);
 
-#if PREFETCH != 0
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 4 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 5 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 6 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 7 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-
-#endif
 				const __m256 mmb64  = _mm256_load_ps(&mb[i][k +  64]);
 				const __m256 mmb72  = _mm256_load_ps(&mb[i][k +  72]);
 				const __m256 mmb80  = _mm256_load_ps(&mb[i][k +  80]);
