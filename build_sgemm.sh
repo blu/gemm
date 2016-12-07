@@ -25,6 +25,17 @@ elif [[ ${CC_FILENAME:0:4} == "icpc" ]]; then
 		-opt-streaming-cache-evict=0
 	)
 fi
+if [[ ${MACHTYPE} =~ "-apple-darwin" ]]; then
+	# nothing darwin-specific, yet
+	LFLAGS+=()
+elif [[ ${MACHTYPE} =~ "-linux-" ]]; then
+	LFLAGS+=(
+		-lrt
+	)
+else
+	echo Unknown platform
+	exit 255
+fi
 # use the machine name to detect armv8 devices with aarch64 kernels and armv7 userspaces
 UNAME_MACHINE=`uname -m`
 
@@ -74,6 +85,6 @@ elif [[ $HOSTTYPE == "powerpc64" || $HOSTTYPE == "ppc64" ]]; then
 	)
 fi
 
-BUILD_CMD=${CC}" -o sgemm "${CFLAGS[@]}" sgemm.cpp -lrt "${@}
+BUILD_CMD=${CC}" -o sgemm "${CFLAGS[@]}" sgemm.cpp "${LFLAGS[@]}" "${@}
 echo $BUILD_CMD
 $BUILD_CMD
