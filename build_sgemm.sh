@@ -27,9 +27,9 @@ elif [[ ${CC_FILENAME:0:4} == "icpc" ]]; then
 fi
 if [[ ${MACHTYPE} =~ "-apple-darwin" ]]; then
 	# nothing darwin-specific, yet
-	LFLAGS+=()
+	LFLAGS=()
 elif [[ ${MACHTYPE} =~ "-linux-" ]]; then
-	LFLAGS+=(
+	LFLAGS=(
 		-lrt
 	)
 else
