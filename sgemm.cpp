@@ -456,7 +456,137 @@ static void matmul(
 	}
 }
 
-#elif ALT == 5 // transposed mb; unoptimised and highly experimental
+#elif ALT == 5
+#include <arm_neon.h>
+
+static void matmul(
+	const float (&ma)[MATX_SIZE][MATX_SIZE],
+	const float (&mb)[MATX_SIZE][MATX_SIZE],
+	float (&mc)[MATX_SIZE][MATX_SIZE]) {
+
+	for (size_t j = 0; j < MATX_SIZE; ++j) {
+		for (size_t k = 0; k < MATX_SIZE; k += 32) {
+
+			float32x4_t mmc0  = reinterpret_cast< float32x4_t& >(mc[j][k +  0]);
+			float32x4_t mmc4  = reinterpret_cast< float32x4_t& >(mc[j][k +  4]);
+			float32x4_t mmc8  = reinterpret_cast< float32x4_t& >(mc[j][k +  8]);
+			float32x4_t mmc12 = reinterpret_cast< float32x4_t& >(mc[j][k + 12]);
+
+			float32x4_t mmc16 = reinterpret_cast< float32x4_t& >(mc[j][k + 16]);
+			float32x4_t mmc20 = reinterpret_cast< float32x4_t& >(mc[j][k + 20]);
+			float32x4_t mmc24 = reinterpret_cast< float32x4_t& >(mc[j][k + 24]);
+			float32x4_t mmc28 = reinterpret_cast< float32x4_t& >(mc[j][k + 28]);
+
+			for (size_t i = 0; i < MATX_SIZE; i += 4) {
+				const float32x4_t mma_ji = reinterpret_cast< const float32x4_t& >(ma[j][i]);
+
+#if PREFETCH != 0
+				// 32 * sizeof(fp32) = 2^7 bytes = 2 * 64-byte cachelines
+				__builtin_prefetch(((const int8_t*) &mb[i + 0][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 0][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 1][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 1][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 2][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 2][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 3][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 3][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+
+#endif
+				const float32x4_t mmb0_0  = reinterpret_cast< const float32x4_t& >(mb[i + 0][k +  0]);
+				const float32x4_t mmb0_4  = reinterpret_cast< const float32x4_t& >(mb[i + 0][k +  4]);
+				const float32x4_t mmb0_8  = reinterpret_cast< const float32x4_t& >(mb[i + 0][k +  8]);
+				const float32x4_t mmb0_12 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 12]);
+
+				const float32x4_t mmb0_16 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 16]);
+				const float32x4_t mmb0_20 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 20]);
+				const float32x4_t mmb0_24 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 24]);
+				const float32x4_t mmb0_28 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 28]);
+
+				mmc0  = vmlaq_n_f32(mmc0,  mmb0_0,  vgetq_lane_f32(mma_ji, 0));
+				mmc4  = vmlaq_n_f32(mmc4,  mmb0_4,  vgetq_lane_f32(mma_ji, 0));
+				mmc8  = vmlaq_n_f32(mmc8,  mmb0_8,  vgetq_lane_f32(mma_ji, 0));
+				mmc12 = vmlaq_n_f32(mmc12, mmb0_12, vgetq_lane_f32(mma_ji, 0));
+
+				mmc16 = vmlaq_n_f32(mmc16, mmb0_16, vgetq_lane_f32(mma_ji, 0));
+				mmc20 = vmlaq_n_f32(mmc20, mmb0_20, vgetq_lane_f32(mma_ji, 0));
+				mmc24 = vmlaq_n_f32(mmc24, mmb0_24, vgetq_lane_f32(mma_ji, 0));
+				mmc28 = vmlaq_n_f32(mmc28, mmb0_28, vgetq_lane_f32(mma_ji, 0));
+
+				const float32x4_t mmb1_0  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  0]);
+				const float32x4_t mmb1_4  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  4]);
+				const float32x4_t mmb1_8  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  8]);
+				const float32x4_t mmb1_12 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 12]);
+
+				const float32x4_t mmb1_16 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 16]);
+				const float32x4_t mmb1_20 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 20]);
+				const float32x4_t mmb1_24 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 24]);
+				const float32x4_t mmb1_28 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 28]);
+
+				mmc0  = vmlaq_n_f32(mmc0,  mmb1_0,  vgetq_lane_f32(mma_ji, 1));
+				mmc4  = vmlaq_n_f32(mmc4,  mmb1_4,  vgetq_lane_f32(mma_ji, 1));
+				mmc8  = vmlaq_n_f32(mmc8,  mmb1_8,  vgetq_lane_f32(mma_ji, 1));
+				mmc12 = vmlaq_n_f32(mmc12, mmb1_12, vgetq_lane_f32(mma_ji, 1));
+
+				mmc16 = vmlaq_n_f32(mmc16, mmb1_16, vgetq_lane_f32(mma_ji, 1));
+				mmc20 = vmlaq_n_f32(mmc20, mmb1_20, vgetq_lane_f32(mma_ji, 1));
+				mmc24 = vmlaq_n_f32(mmc24, mmb1_24, vgetq_lane_f32(mma_ji, 1));
+				mmc28 = vmlaq_n_f32(mmc28, mmb1_28, vgetq_lane_f32(mma_ji, 1));
+
+				const float32x4_t mmb2_0  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  0]);
+				const float32x4_t mmb2_4  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  4]);
+				const float32x4_t mmb2_8  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  8]);
+				const float32x4_t mmb2_12 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 12]);
+
+				const float32x4_t mmb2_16 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 16]);
+				const float32x4_t mmb2_20 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 20]);
+				const float32x4_t mmb2_24 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 24]);
+				const float32x4_t mmb2_28 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 28]);
+
+				mmc0  = vmlaq_n_f32(mmc0,  mmb2_0,  vgetq_lane_f32(mma_ji, 2));
+				mmc4  = vmlaq_n_f32(mmc4,  mmb2_4,  vgetq_lane_f32(mma_ji, 2));
+				mmc8  = vmlaq_n_f32(mmc8,  mmb2_8,  vgetq_lane_f32(mma_ji, 2));
+				mmc12 = vmlaq_n_f32(mmc12, mmb2_12, vgetq_lane_f32(mma_ji, 2));
+
+				mmc16 = vmlaq_n_f32(mmc16, mmb2_0,  vgetq_lane_f32(mma_ji, 2));
+				mmc20 = vmlaq_n_f32(mmc20, mmb2_4,  vgetq_lane_f32(mma_ji, 2));
+				mmc24 = vmlaq_n_f32(mmc24, mmb2_8,  vgetq_lane_f32(mma_ji, 2));
+				mmc28 = vmlaq_n_f32(mmc28, mmb2_12, vgetq_lane_f32(mma_ji, 2));
+
+				const float32x4_t mmb3_0  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  0]);
+				const float32x4_t mmb3_4  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  4]);
+				const float32x4_t mmb3_8  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  8]);
+				const float32x4_t mmb3_12 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 12]);
+
+				const float32x4_t mmb3_16 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 16]);
+				const float32x4_t mmb3_20 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 20]);
+				const float32x4_t mmb3_24 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 24]);
+				const float32x4_t mmb3_28 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 28]);
+
+				mmc0  = vmlaq_n_f32(mmc0,  mmb3_0,  vgetq_lane_f32(mma_ji, 3));
+				mmc4  = vmlaq_n_f32(mmc4,  mmb3_4,  vgetq_lane_f32(mma_ji, 3));
+				mmc8  = vmlaq_n_f32(mmc8,  mmb3_8,  vgetq_lane_f32(mma_ji, 3));
+				mmc12 = vmlaq_n_f32(mmc12, mmb3_12, vgetq_lane_f32(mma_ji, 3));
+
+				mmc16 = vmlaq_n_f32(mmc16, mmb3_16, vgetq_lane_f32(mma_ji, 3));
+				mmc20 = vmlaq_n_f32(mmc20, mmb3_20, vgetq_lane_f32(mma_ji, 3));
+				mmc24 = vmlaq_n_f32(mmc24, mmb3_24, vgetq_lane_f32(mma_ji, 3));
+				mmc28 = vmlaq_n_f32(mmc28, mmb3_28, vgetq_lane_f32(mma_ji, 3));
+			}
+
+			reinterpret_cast< float32x4_t& >(mc[j][k +  0]) = mmc0;
+			reinterpret_cast< float32x4_t& >(mc[j][k +  4]) = mmc4;
+			reinterpret_cast< float32x4_t& >(mc[j][k +  8]) = mmc8;
+			reinterpret_cast< float32x4_t& >(mc[j][k + 12]) = mmc12;
+
+			reinterpret_cast< float32x4_t& >(mc[j][k + 16]) = mmc16;
+			reinterpret_cast< float32x4_t& >(mc[j][k + 20]) = mmc20;
+			reinterpret_cast< float32x4_t& >(mc[j][k + 24]) = mmc24;
+			reinterpret_cast< float32x4_t& >(mc[j][k + 28]) = mmc28;
+		}
+	}
+}
+
+#elif ALT == 6 // transposed mb; unoptimised and highly experimental
 #include <arm_neon.h>
 
 static void matmul(
