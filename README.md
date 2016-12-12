@@ -37,6 +37,7 @@ Best results measured in SP flops/clock by the formula:
 | CPU (single thread only)  | width of SIMD ALU | 64x64    | 512x512  | remarks [^1]                                                          |
 | ------------------------- | ----------------- | -------- | -------- | --------------------------------------------------------------------- |
 | AMD C60 (Bobcat)          | 2-way             | 1.51     | 1.12     | clang++ 3.6, ALT = 1, PREFETCH = 3072, autovectorized SSE2, 800MHz    |
+| AMD C60 (Bobcat)          | 2-way             | 1.51     | 0.85     | clang++ 3.6, ALT = 1, PREFETCH = 3072, autovectorized SSE2, 1.33GHz   |
 | Intel Core2 T5600         | 4-way             | 3.04     | 2.76     | clang++ 3.4, ALT = 1, PREFETCH = 2560, autovectorized SSE2, 1.83GHz   |
 | Intel E5-2687W (SNB)      | 8-way             | 12.86    | 5.46     | clang++ 3.6, ALT = 2, PREFETCH = 2560, AVX256 intrinsics, 3.1GHz      |
 | Intel E3-1270v2 (IVB)     | 8-way             | 12.93    | 6.45     | clang++ 3.6, ALT = 2, PREFETCH = 2560, AVX256 intrinsics, 1.6GHz      |
