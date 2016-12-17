@@ -139,6 +139,7 @@ static void matmul(
 				mmc[14] += ma_ji * mmb[14];
 				mmc[15] += ma_ji * mmb[15];
 			}
+
 			mc[j][k +  0] = mmc[ 0];
 			mc[j][k +  1] = mmc[ 1];
 			mc[j][k +  2] = mmc[ 2];
@@ -547,10 +548,10 @@ static void matmul(
 				mmc8  = vmlaq_n_f32(mmc8,  mmb2_8,  vgetq_lane_f32(mma_ji, 2));
 				mmc12 = vmlaq_n_f32(mmc12, mmb2_12, vgetq_lane_f32(mma_ji, 2));
 
-				mmc16 = vmlaq_n_f32(mmc16, mmb2_0,  vgetq_lane_f32(mma_ji, 2));
-				mmc20 = vmlaq_n_f32(mmc20, mmb2_4,  vgetq_lane_f32(mma_ji, 2));
-				mmc24 = vmlaq_n_f32(mmc24, mmb2_8,  vgetq_lane_f32(mma_ji, 2));
-				mmc28 = vmlaq_n_f32(mmc28, mmb2_12, vgetq_lane_f32(mma_ji, 2));
+				mmc16 = vmlaq_n_f32(mmc16, mmb2_16, vgetq_lane_f32(mma_ji, 2));
+				mmc20 = vmlaq_n_f32(mmc20, mmb2_20, vgetq_lane_f32(mma_ji, 2));
+				mmc24 = vmlaq_n_f32(mmc24, mmb2_24, vgetq_lane_f32(mma_ji, 2));
+				mmc28 = vmlaq_n_f32(mmc28, mmb2_28, vgetq_lane_f32(mma_ji, 2));
 
 				const float32x4_t mmb3_0  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  0]);
 				const float32x4_t mmb3_4  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  4]);
