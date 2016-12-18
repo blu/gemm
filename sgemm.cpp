@@ -44,6 +44,9 @@ enum {
 #endif
 
 #if ALT == 0
+////////////////////////////////////////////////////////////////////////////////////////////////
+// sgemm scalar kernel
+
 static void matmul(
 	const float (&ma)[MATX_SIZE][MATX_SIZE],
 	const float (&mb)[MATX_SIZE][MATX_SIZE],
@@ -60,6 +63,9 @@ static void matmul(
 }
 
 #elif ALT == 1
+////////////////////////////////////////////////////////////////////////////////////////////////
+// sgemm kernel window of 1x16
+
 static void matmul(
 	const float (&ma)[MATX_SIZE][MATX_SIZE],
 	const float (&mb)[MATX_SIZE][MATX_SIZE],
@@ -165,6 +171,9 @@ static void matmul(
 #elif ALT == 2
 #include <immintrin.h>
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+// sgemm kernel window of 1x64
+
 static void matmul(
 	const float (&ma)[MATX_SIZE][MATX_SIZE],
 	const float (&mb)[MATX_SIZE][MATX_SIZE],
@@ -264,6 +273,9 @@ static void matmul(
 
 #elif ALT == 3
 #include <immintrin.h>
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// sgemm kernel window of 1x128
 
 static void matmul(
 	const float (&ma)[MATX_SIZE][MATX_SIZE],
@@ -385,6 +397,9 @@ static void matmul(
 #elif ALT == 4
 #include <arm_neon.h>
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+// sgemm kernel window of 1x16
+
 static void matmul(
 	const float (&ma)[MATX_SIZE][MATX_SIZE],
 	const float (&mb)[MATX_SIZE][MATX_SIZE],
@@ -460,6 +475,9 @@ static void matmul(
 
 #elif ALT == 5
 #include <arm_neon.h>
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// sgemm kernel window of 1x32
 
 static void matmul(
 	const float (&ma)[MATX_SIZE][MATX_SIZE],
@@ -591,6 +609,9 @@ static void matmul(
 #elif ALT == 6
 #include <arm_neon.h>
 
+////////////////////////////////////////////////////////////////////////////////////////////////
+// sgemm kernel window of 2x16
+
 static void matmul(
 	const float (&ma)[MATX_SIZE][MATX_SIZE],
 	const float (&mb)[MATX_SIZE][MATX_SIZE],
@@ -614,7 +635,7 @@ static void matmul(
 				const float32x4_t mma1_ji = reinterpret_cast< const float32x4_t& >(ma[j + 1][i]);
 
 #if PREFETCH != 0
-				// 32 * sizeof(fp32) = 2^7 bytes = 2 * 64-byte cachelines
+				// 16 * sizeof(fp32) = 2^6 bytes = 1 * 64-byte cachelines
 				__builtin_prefetch(((const int8_t*) &mb[i + 0][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
 				__builtin_prefetch(((const int8_t*) &mb[i + 1][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
 				__builtin_prefetch(((const int8_t*) &mb[i + 2][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
@@ -695,66 +716,196 @@ static void matmul(
 	}
 }
 
-#elif ALT == 7 // transposed mb; unoptimised and highly experimental
+#elif ALT == 7
 #include <arm_neon.h>
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// sgemm kernel window of 2x32
 
 static void matmul(
 	const float (&ma)[MATX_SIZE][MATX_SIZE],
 	const float (&mb)[MATX_SIZE][MATX_SIZE],
 	float (&mc)[MATX_SIZE][MATX_SIZE]) {
 
-	for (size_t i = 0; i < MATX_SIZE; ++i) {
-		for (size_t j = 0; j < MATX_SIZE; j += 4) {
-			float32x4_t mmc0  = reinterpret_cast< float32x4_t& >(mc[i][j +  0]);
+	for (size_t j = 0; j < MATX_SIZE; j += 2) {
+		for (size_t k = 0; k < MATX_SIZE; k += 32) {
+
+			float32x4_t mmc0_0  = reinterpret_cast< float32x4_t& >(mc[j + 0][k +  0]);
+			float32x4_t mmc0_4  = reinterpret_cast< float32x4_t& >(mc[j + 0][k +  4]);
+			float32x4_t mmc0_8  = reinterpret_cast< float32x4_t& >(mc[j + 0][k +  8]);
+			float32x4_t mmc0_12 = reinterpret_cast< float32x4_t& >(mc[j + 0][k + 12]);
+
+			float32x4_t mmc0_16 = reinterpret_cast< float32x4_t& >(mc[j + 0][k + 16]);
+			float32x4_t mmc0_20 = reinterpret_cast< float32x4_t& >(mc[j + 0][k + 20]);
+			float32x4_t mmc0_24 = reinterpret_cast< float32x4_t& >(mc[j + 0][k + 24]);
+			float32x4_t mmc0_28 = reinterpret_cast< float32x4_t& >(mc[j + 0][k + 28]);
+
+			float32x4_t mmc1_0  = reinterpret_cast< float32x4_t& >(mc[j + 1][k +  0]);
+			float32x4_t mmc1_4  = reinterpret_cast< float32x4_t& >(mc[j + 1][k +  4]);
+			float32x4_t mmc1_8  = reinterpret_cast< float32x4_t& >(mc[j + 1][k +  8]);
+			float32x4_t mmc1_12 = reinterpret_cast< float32x4_t& >(mc[j + 1][k + 12]);
+
+			float32x4_t mmc1_16 = reinterpret_cast< float32x4_t& >(mc[j + 1][k + 16]);
+			float32x4_t mmc1_20 = reinterpret_cast< float32x4_t& >(mc[j + 1][k + 20]);
+			float32x4_t mmc1_24 = reinterpret_cast< float32x4_t& >(mc[j + 1][k + 24]);
+			float32x4_t mmc1_28 = reinterpret_cast< float32x4_t& >(mc[j + 1][k + 28]);
+
+			for (size_t i = 0; i < MATX_SIZE; i += 4) {
+				const float32x4_t mma0_ji = reinterpret_cast< const float32x4_t& >(ma[j + 0][i]);
+				const float32x4_t mma1_ji = reinterpret_cast< const float32x4_t& >(ma[j + 1][i]);
 
 #if PREFETCH != 0
-			// 16 * sizeof(fp32) = 2^6 bytes = 1 * 64-byte cachelines
-			__builtin_prefetch(((const int8_t*) &mb[j + 4 + 0][0]), prefetch_ro, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) &mb[j + 4 + 1][0]), prefetch_ro, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) &mb[j + 4 + 2][0]), prefetch_ro, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) &mb[j + 4 + 3][0]), prefetch_ro, prefetch_t3);
+				// 32 * sizeof(fp32) = 2^7 bytes = 2 * 64-byte cachelines
+				__builtin_prefetch(((const int8_t*) &mb[i + 0][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 0][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 1][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 1][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 2][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 2][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 3][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 3][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
 
 #endif
-			for (size_t k = 0; k < MATX_SIZE; k += 8) {
-				const float32x4_t mma0 = reinterpret_cast< const float32x4_t& >(ma[i][k +  0]);
-				const float32x4_t mma4 = reinterpret_cast< const float32x4_t& >(ma[i][k +  4]);
+				const float32x4_t mmb0_0  = reinterpret_cast< const float32x4_t& >(mb[i + 0][k +  0]);
+				const float32x4_t mmb0_4  = reinterpret_cast< const float32x4_t& >(mb[i + 0][k +  4]);
+				const float32x4_t mmb0_8  = reinterpret_cast< const float32x4_t& >(mb[i + 0][k +  8]);
+				const float32x4_t mmb0_12 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 12]);
 
-				const float32x4_t mmb0_0  = reinterpret_cast< const float32x4_t& >(mb[j +  0][k +  0]);
-				const float32x4_t mmb0_4  = reinterpret_cast< const float32x4_t& >(mb[j +  0][k +  4]);
-				const float32x4_t mmb1_0  = reinterpret_cast< const float32x4_t& >(mb[j +  1][k +  0]);
-				const float32x4_t mmb1_4  = reinterpret_cast< const float32x4_t& >(mb[j +  1][k +  4]);
-				const float32x4_t mmb2_0  = reinterpret_cast< const float32x4_t& >(mb[j +  2][k +  0]);
-				const float32x4_t mmb2_4  = reinterpret_cast< const float32x4_t& >(mb[j +  2][k +  4]);
-				const float32x4_t mmb3_0  = reinterpret_cast< const float32x4_t& >(mb[j +  3][k +  0]);
-				const float32x4_t mmb3_4  = reinterpret_cast< const float32x4_t& >(mb[j +  3][k +  4]);
+				const float32x4_t mmb0_16 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 16]);
+				const float32x4_t mmb0_20 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 20]);
+				const float32x4_t mmb0_24 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 24]);
+				const float32x4_t mmb0_28 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 28]);
 
-				// transpose 1st 4x4
-				const float32x4x2_t t01_0 = vtrnq_f32(mmb0_0, mmb1_0);
-				const float32x4x2_t t23_0 = vtrnq_f32(mmb2_0, mmb3_0);
-				const float32x4_t mmb0_i0 = vreinterpretq_f32_f64(vtrn1q_f64(vreinterpretq_f64_f32(t01_0.val[0]), vreinterpretq_f64_f32(t23_0.val[0])));
-				const float32x4_t mmb0_i1 = vreinterpretq_f32_f64(vtrn1q_f64(vreinterpretq_f64_f32(t01_0.val[1]), vreinterpretq_f64_f32(t23_0.val[1])));
-				const float32x4_t mmb0_i2 = vreinterpretq_f32_f64(vtrn2q_f64(vreinterpretq_f64_f32(t01_0.val[0]), vreinterpretq_f64_f32(t23_0.val[0])));
-				const float32x4_t mmb0_i3 = vreinterpretq_f32_f64(vtrn2q_f64(vreinterpretq_f64_f32(t01_0.val[1]), vreinterpretq_f64_f32(t23_0.val[1])));
+				mmc0_0  = vmlaq_n_f32(mmc0_0,  mmb0_0,  vgetq_lane_f32(mma0_ji, 0));
+				mmc0_4  = vmlaq_n_f32(mmc0_4,  mmb0_4,  vgetq_lane_f32(mma0_ji, 0));
+				mmc0_8  = vmlaq_n_f32(mmc0_8,  mmb0_8,  vgetq_lane_f32(mma0_ji, 0));
+				mmc0_12 = vmlaq_n_f32(mmc0_12, mmb0_12, vgetq_lane_f32(mma0_ji, 0));
 
-				// transpose 2nd 4x4
-				const float32x4x2_t t01_4 = vtrnq_f32(mmb0_4, mmb1_4);
-				const float32x4x2_t t23_4 = vtrnq_f32(mmb2_4, mmb3_4);
-				const float32x4_t mmb4_i0 = vreinterpretq_f32_f64(vtrn1q_f64(vreinterpretq_f64_f32(t01_4.val[0]), vreinterpretq_f64_f32(t23_4.val[0])));
-				const float32x4_t mmb4_i1 = vreinterpretq_f32_f64(vtrn1q_f64(vreinterpretq_f64_f32(t01_4.val[1]), vreinterpretq_f64_f32(t23_4.val[1])));
-				const float32x4_t mmb4_i2 = vreinterpretq_f32_f64(vtrn2q_f64(vreinterpretq_f64_f32(t01_4.val[0]), vreinterpretq_f64_f32(t23_4.val[0])));
-				const float32x4_t mmb4_i3 = vreinterpretq_f32_f64(vtrn2q_f64(vreinterpretq_f64_f32(t01_4.val[1]), vreinterpretq_f64_f32(t23_4.val[1])));
+				mmc0_16 = vmlaq_n_f32(mmc0_16, mmb0_16, vgetq_lane_f32(mma0_ji, 0));
+				mmc0_20 = vmlaq_n_f32(mmc0_20, mmb0_20, vgetq_lane_f32(mma0_ji, 0));
+				mmc0_24 = vmlaq_n_f32(mmc0_24, mmb0_24, vgetq_lane_f32(mma0_ji, 0));
+				mmc0_28 = vmlaq_n_f32(mmc0_28, mmb0_28, vgetq_lane_f32(mma0_ji, 0));
 
-				// this is fully sequential - break up some madds to provide some parallelism
-				mmc0  = vmlaq_n_f32(mmc0,  mmb0_i0, vgetq_lane_f32(mma0, 0));
-				mmc0  = vmlaq_n_f32(mmc0,  mmb0_i1, vgetq_lane_f32(mma0, 1));
-				mmc0  = vmlaq_n_f32(mmc0,  mmb0_i2, vgetq_lane_f32(mma0, 2));
-				mmc0  = vmlaq_n_f32(mmc0,  mmb0_i3, vgetq_lane_f32(mma0, 3));
-				mmc0  = vmlaq_n_f32(mmc0,  mmb4_i0, vgetq_lane_f32(mma4, 0));
-				mmc0  = vmlaq_n_f32(mmc0,  mmb4_i1, vgetq_lane_f32(mma4, 1));
-				mmc0  = vmlaq_n_f32(mmc0,  mmb4_i2, vgetq_lane_f32(mma4, 2));
-				mmc0  = vmlaq_n_f32(mmc0,  mmb4_i3, vgetq_lane_f32(mma4, 3));
+				mmc1_0  = vmlaq_n_f32(mmc1_0,  mmb0_0,  vgetq_lane_f32(mma1_ji, 0));
+				mmc1_4  = vmlaq_n_f32(mmc1_4,  mmb0_4,  vgetq_lane_f32(mma1_ji, 0));
+				mmc1_8  = vmlaq_n_f32(mmc1_8,  mmb0_8,  vgetq_lane_f32(mma1_ji, 0));
+				mmc1_12 = vmlaq_n_f32(mmc1_12, mmb0_12, vgetq_lane_f32(mma1_ji, 0));
+
+				mmc1_16 = vmlaq_n_f32(mmc1_16, mmb0_16, vgetq_lane_f32(mma1_ji, 0));
+				mmc1_20 = vmlaq_n_f32(mmc1_20, mmb0_20, vgetq_lane_f32(mma1_ji, 0));
+				mmc1_24 = vmlaq_n_f32(mmc1_24, mmb0_24, vgetq_lane_f32(mma1_ji, 0));
+				mmc1_28 = vmlaq_n_f32(mmc1_28, mmb0_28, vgetq_lane_f32(mma1_ji, 0));
+
+				const float32x4_t mmb1_0  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  0]);
+				const float32x4_t mmb1_4  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  4]);
+				const float32x4_t mmb1_8  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  8]);
+				const float32x4_t mmb1_12 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 12]);
+
+				const float32x4_t mmb1_16 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 16]);
+				const float32x4_t mmb1_20 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 20]);
+				const float32x4_t mmb1_24 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 24]);
+				const float32x4_t mmb1_28 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 28]);
+
+				mmc0_0  = vmlaq_n_f32(mmc0_0,  mmb1_0,  vgetq_lane_f32(mma0_ji, 1));
+				mmc0_4  = vmlaq_n_f32(mmc0_4,  mmb1_4,  vgetq_lane_f32(mma0_ji, 1));
+				mmc0_8  = vmlaq_n_f32(mmc0_8,  mmb1_8,  vgetq_lane_f32(mma0_ji, 1));
+				mmc0_12 = vmlaq_n_f32(mmc0_12, mmb1_12, vgetq_lane_f32(mma0_ji, 1));
+
+				mmc0_16 = vmlaq_n_f32(mmc0_16, mmb1_16, vgetq_lane_f32(mma0_ji, 1));
+				mmc0_20 = vmlaq_n_f32(mmc0_20, mmb1_20, vgetq_lane_f32(mma0_ji, 1));
+				mmc0_24 = vmlaq_n_f32(mmc0_24, mmb1_24, vgetq_lane_f32(mma0_ji, 1));
+				mmc0_28 = vmlaq_n_f32(mmc0_28, mmb1_28, vgetq_lane_f32(mma0_ji, 1));
+
+				mmc1_0  = vmlaq_n_f32(mmc1_0,  mmb1_0,  vgetq_lane_f32(mma1_ji, 1));
+				mmc1_4  = vmlaq_n_f32(mmc1_4,  mmb1_4,  vgetq_lane_f32(mma1_ji, 1));
+				mmc1_8  = vmlaq_n_f32(mmc1_8,  mmb1_8,  vgetq_lane_f32(mma1_ji, 1));
+				mmc1_12 = vmlaq_n_f32(mmc1_12, mmb1_12, vgetq_lane_f32(mma1_ji, 1));
+
+				mmc1_16 = vmlaq_n_f32(mmc1_16, mmb1_16, vgetq_lane_f32(mma1_ji, 1));
+				mmc1_20 = vmlaq_n_f32(mmc1_20, mmb1_20, vgetq_lane_f32(mma1_ji, 1));
+				mmc1_24 = vmlaq_n_f32(mmc1_24, mmb1_24, vgetq_lane_f32(mma1_ji, 1));
+				mmc1_28 = vmlaq_n_f32(mmc1_28, mmb1_28, vgetq_lane_f32(mma1_ji, 1));
+
+				const float32x4_t mmb2_0  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  0]);
+				const float32x4_t mmb2_4  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  4]);
+				const float32x4_t mmb2_8  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  8]);
+				const float32x4_t mmb2_12 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 12]);
+
+				const float32x4_t mmb2_16 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 16]);
+				const float32x4_t mmb2_20 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 20]);
+				const float32x4_t mmb2_24 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 24]);
+				const float32x4_t mmb2_28 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 28]);
+
+				mmc0_0  = vmlaq_n_f32(mmc0_0,  mmb2_0,  vgetq_lane_f32(mma0_ji, 2));
+				mmc0_4  = vmlaq_n_f32(mmc0_4,  mmb2_4,  vgetq_lane_f32(mma0_ji, 2));
+				mmc0_8  = vmlaq_n_f32(mmc0_8,  mmb2_8,  vgetq_lane_f32(mma0_ji, 2));
+				mmc0_12 = vmlaq_n_f32(mmc0_12, mmb2_12, vgetq_lane_f32(mma0_ji, 2));
+
+				mmc0_16 = vmlaq_n_f32(mmc0_16, mmb2_16, vgetq_lane_f32(mma0_ji, 2));
+				mmc0_20 = vmlaq_n_f32(mmc0_20, mmb2_20, vgetq_lane_f32(mma0_ji, 2));
+				mmc0_24 = vmlaq_n_f32(mmc0_24, mmb2_24, vgetq_lane_f32(mma0_ji, 2));
+				mmc0_28 = vmlaq_n_f32(mmc0_28, mmb2_28, vgetq_lane_f32(mma0_ji, 2));
+
+				mmc1_0  = vmlaq_n_f32(mmc1_0,  mmb2_0,  vgetq_lane_f32(mma1_ji, 2));
+				mmc1_4  = vmlaq_n_f32(mmc1_4,  mmb2_4,  vgetq_lane_f32(mma1_ji, 2));
+				mmc1_8  = vmlaq_n_f32(mmc1_8,  mmb2_8,  vgetq_lane_f32(mma1_ji, 2));
+				mmc1_12 = vmlaq_n_f32(mmc1_12, mmb2_12, vgetq_lane_f32(mma1_ji, 2));
+
+				mmc1_16 = vmlaq_n_f32(mmc1_16, mmb2_16, vgetq_lane_f32(mma1_ji, 2));
+				mmc1_20 = vmlaq_n_f32(mmc1_20, mmb2_20, vgetq_lane_f32(mma1_ji, 2));
+				mmc1_24 = vmlaq_n_f32(mmc1_24, mmb2_24, vgetq_lane_f32(mma1_ji, 2));
+				mmc1_28 = vmlaq_n_f32(mmc1_28, mmb2_28, vgetq_lane_f32(mma1_ji, 2));
+
+				const float32x4_t mmb3_0  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  0]);
+				const float32x4_t mmb3_4  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  4]);
+				const float32x4_t mmb3_8  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  8]);
+				const float32x4_t mmb3_12 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 12]);
+
+				const float32x4_t mmb3_16 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 16]);
+				const float32x4_t mmb3_20 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 20]);
+				const float32x4_t mmb3_24 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 24]);
+				const float32x4_t mmb3_28 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 28]);
+
+				mmc0_0  = vmlaq_n_f32(mmc0_0,  mmb3_0,  vgetq_lane_f32(mma0_ji, 3));
+				mmc0_4  = vmlaq_n_f32(mmc0_4,  mmb3_4,  vgetq_lane_f32(mma0_ji, 3));
+				mmc0_8  = vmlaq_n_f32(mmc0_8,  mmb3_8,  vgetq_lane_f32(mma0_ji, 3));
+				mmc0_12 = vmlaq_n_f32(mmc0_12, mmb3_12, vgetq_lane_f32(mma0_ji, 3));
+
+				mmc0_16 = vmlaq_n_f32(mmc0_16, mmb3_16, vgetq_lane_f32(mma0_ji, 3));
+				mmc0_20 = vmlaq_n_f32(mmc0_20, mmb3_20, vgetq_lane_f32(mma0_ji, 3));
+				mmc0_24 = vmlaq_n_f32(mmc0_24, mmb3_24, vgetq_lane_f32(mma0_ji, 3));
+				mmc0_28 = vmlaq_n_f32(mmc0_28, mmb3_28, vgetq_lane_f32(mma0_ji, 3));
+
+				mmc1_0  = vmlaq_n_f32(mmc1_0,  mmb3_0,  vgetq_lane_f32(mma1_ji, 3));
+				mmc1_4  = vmlaq_n_f32(mmc1_4,  mmb3_4,  vgetq_lane_f32(mma1_ji, 3));
+				mmc1_8  = vmlaq_n_f32(mmc1_8,  mmb3_8,  vgetq_lane_f32(mma1_ji, 3));
+				mmc1_12 = vmlaq_n_f32(mmc1_12, mmb3_12, vgetq_lane_f32(mma1_ji, 3));
+
+				mmc1_16 = vmlaq_n_f32(mmc1_16, mmb3_16, vgetq_lane_f32(mma1_ji, 3));
+				mmc1_20 = vmlaq_n_f32(mmc1_20, mmb3_20, vgetq_lane_f32(mma1_ji, 3));
+				mmc1_24 = vmlaq_n_f32(mmc1_24, mmb3_24, vgetq_lane_f32(mma1_ji, 3));
+				mmc1_28 = vmlaq_n_f32(mmc1_28, mmb3_28, vgetq_lane_f32(mma1_ji, 3));
 			}
-			reinterpret_cast< float32x4_t& >(mc[i][j +  0]) = mmc0;
+
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k +  0]) = mmc0_0;
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k +  4]) = mmc0_4;
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k +  8]) = mmc0_8;
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k + 12]) = mmc0_12;
+
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k + 16]) = mmc0_16;
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k + 20]) = mmc0_20;
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k + 24]) = mmc0_24;
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k + 28]) = mmc0_28;
+
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k +  0]) = mmc1_0;
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k +  4]) = mmc1_4;
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k +  8]) = mmc1_8;
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k + 12]) = mmc1_12;
+
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k + 16]) = mmc1_16;
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k + 20]) = mmc1_20;
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k + 24]) = mmc1_24;
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k + 28]) = mmc1_28;
 		}
 	}
 }

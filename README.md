@@ -15,6 +15,8 @@ The low-tech bash script `build_sgemm.sh` will try to build the test for a 64-bi
 	* 3 - 128-element-wide AVX256 version
 	* 4 - 16-element-wide ASIMD2 (aarch64) version
 	* 5 - 32-element-wide ASIMD2 (aarch64) version
+	* 6 - 2-deep 16-element-wide ASIMD2 (aarch64) version
+	* 7 - 2-deep 32-element-wide ASIMD2 (aarch64) version
 * `PREFETCH` - distance, in floats, to prefetch in the innermost loop (0 for no prefetch; unused in the scalar version)
 * `MATX_SIZE` - dimension of the square matrices A, B & C
 * `REP_EXP` - exponent of the number of repetitions of the test, ie. 1eEXP
@@ -42,6 +44,7 @@ Best results measured in SP flops/clock by the formula:
 | Intel E5-2687W (SNB)      | 8-way             | 12.86    | 5.46     | clang++ 3.6, ALT = 2, PREFETCH = 2560, AVX256 intrinsics, 3.1GHz      |
 | Intel E3-1270v2 (IVB)     | 8-way             | 12.93    | 6.45     | clang++ 3.6, ALT = 2, PREFETCH = 2560, AVX256 intrinsics, 1.6GHz      |
 | RK3368 (Cortex-A53)       | 2-way             | 1.96     | 0.74     | clang++ 3.6, ALT = 5, PREFETCH = 1536, ASIMD2 intrinsics, 1.51GHz     |
-| MT8163A (Cortex-A53)      | 2-way             | 2.79     | 1.66     | clang++ 3.6, ALT = 6, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz      |
+| MT8163A (Cortex-A53)      | 2-way             | 2.79     | 1.67     | clang++ 3.6, ALT = 6, PREFETCH = 2560, ASIMD2 intrinsics, 1.5GHz      |
+| MT8163A (Cortex-A53)      | 2-way             | 3.04     | 1.65     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz      |
 
 [^1]: Prefetch applies only to 512x512 and is tuned for the given core clock; 64x64 is not prefetched.  
