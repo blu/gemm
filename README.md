@@ -43,7 +43,8 @@ Best results measured in SP flops/clock by the formula:
 | Intel Core2 T5600         | 4-way             | 3.04     | 2.76     | clang++ 3.4, ALT = 1, PREFETCH = 2560, autovectorized SSE2, 1.83GHz   |
 | Intel E5-2687W (SNB)      | 8-way             | 12.86    | 5.46     | clang++ 3.6, ALT = 2, PREFETCH = 2560, AVX256 intrinsics, 3.1GHz      |
 | Intel E3-1270v2 (IVB)     | 8-way             | 12.93    | 6.45     | clang++ 3.6, ALT = 2, PREFETCH = 2560, AVX256 intrinsics, 1.6GHz      |
-| RK3368 (Cortex-A53)       | 2-way             | 1.96     | 0.74     | clang++ 3.6, ALT = 5, PREFETCH = 1536, ASIMD2 intrinsics, 1.51GHz     |
+| RK3368 (Cortex-A53)       | 2-way             | 2.81     | 1.30     | clang++ 3.6, ALT = 6, PREFETCH = 2560, ASIMD2 intrinsics, 1.51GHz     |
+| RK3368 (Cortex-A53)       | 2-way             | 3.11     | 1.38     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.51GHz     |
 | MT8163A (Cortex-A53)      | 2-way             | 2.79     | 1.67     | clang++ 3.6, ALT = 6, PREFETCH = 2560, ASIMD2 intrinsics, 1.5GHz      |
 | MT8163A (Cortex-A53)      | 2-way             | 3.04     | 1.65     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz      |
 
