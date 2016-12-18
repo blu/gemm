@@ -42,6 +42,6 @@ Best results measured in SP flops/clock by the formula:
 | Intel E5-2687W (SNB)      | 8-way             | 12.86    | 5.46     | clang++ 3.6, ALT = 2, PREFETCH = 2560, AVX256 intrinsics, 3.1GHz      |
 | Intel E3-1270v2 (IVB)     | 8-way             | 12.93    | 6.45     | clang++ 3.6, ALT = 2, PREFETCH = 2560, AVX256 intrinsics, 1.6GHz      |
 | RK3368 (Cortex-A53)       | 2-way             | 1.96     | 0.74     | clang++ 3.6, ALT = 5, PREFETCH = 1536, ASIMD2 intrinsics, 1.51GHz     |
-| MT8163A (Cortex-A53)      | 2-way             | 2.11     | 0.93     | clang++ 3.6, ALT = 5, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz      |
+| MT8163A (Cortex-A53)      | 2-way             | 1.96     | 0.87     | clang++ 3.6, ALT = 5, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz      |
 
 [^1]: Prefetch applies only to 512x512 and is tuned for the given core clock; 64x64 is not prefetched.  
