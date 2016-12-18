@@ -3,6 +3,7 @@
 #include "timer.h"
 
 #define CACHELINE_SIZE 64
+#define PAGE_SIZE 4096
 
 #if !defined(MATX_SIZE)
 #define MATX_SIZE 512
@@ -15,9 +16,9 @@
 #define CATENATE(x, y) x##y
 #define CAT(x, y) CATENATE(x, y)
 
-float ma[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(CACHELINE_SIZE)));
-float mb[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(CACHELINE_SIZE)));
-float mc[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(CACHELINE_SIZE)));
+float ma[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(PAGE_SIZE)));
+float mb[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(PAGE_SIZE)));
+float mc[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(PAGE_SIZE)));
 
 static void fprint_matx(FILE* const out, const float (&mat)[MATX_SIZE][MATX_SIZE]) {
 	for (size_t i = 0; i < sizeof(mat) / sizeof(mat[0]); ++i) {
