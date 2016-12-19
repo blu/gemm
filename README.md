@@ -12,7 +12,7 @@ The low-tech bash script `build_sgemm.sh` will try to build the test for a 64-bi
 	* 0 - scalar version
 	* 1 - 16-element-wide version suitable for autovectorizers
 	* 2 - 64-element-wide AVX256 version
-	* 3 - 128-element-wide AVX256 version
+	* 3 - 2-deep 64-element-wide AVX256 version
 	* 4 - 16-element-wide ASIMD2 (aarch64) version
 	* 5 - 32-element-wide ASIMD2 (aarch64) version
 	* 6 - 2-deep 16-element-wide ASIMD2 (aarch64) version
