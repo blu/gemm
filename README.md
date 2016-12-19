@@ -49,4 +49,4 @@ Best results measured in SP flops/clock by the formula:
 | MT8163A (Cortex-A53)      | 2-way             | 3.04     | 1.65     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz      |
 
 [^1]: Prefetch applies only to 512x512 and is tuned for the given core clock; 64x64 is not prefetched.  
-[^2]: The entirety of 512x512 matrices fit in L3
+[^2]: The entirety of 512x512 matrices fit in L3, which runs in the same clock domain as the core on SNB & IVB
