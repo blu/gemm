@@ -42,11 +42,9 @@ Best results measured in SP flops/clock by the formula:
 | AMD C60 (Bobcat)          | 2-way             | 1.51     | 0.85     | clang++ 3.6, ALT = 1, PREFETCH = 3072, autovectorized SSE2, 1.33GHz   |
 | Intel Core2 T5600         | 4-way             | 3.04     | 2.76     | clang++ 3.4, ALT = 1, PREFETCH = 2560, autovectorized SSE2, 1.83GHz   |
 | Intel E5-2687W (SNB)      | 8-way             | 13.79    | 10.12    | clang++ 3.6, ALT = 3, PREFETCH = 3584, AVX256 intrinsics, 3.1GHz [^2] |
-| Intel E3-1270v2 (IVB)     | 8-way             | 12.93    | 6.45     | clang++ 3.6, ALT = 2, PREFETCH = 2560, AVX256 intrinsics, 1.6GHz [^2] |
-| RK3368 (Cortex-A53)       | 2-way             | 2.81     | 1.30     | clang++ 3.6, ALT = 6, PREFETCH = 2560, ASIMD2 intrinsics, 1.51GHz     |
+| Intel E3-1270v2 (IVB)     | 8-way             | 13.40    | 11.0     | clang++ 3.6, ALT = 3, PREFETCH = 3072, AVX256 intrinsics, 1.6GHz [^2] |
 | RK3368 (Cortex-A53)       | 2-way             | 3.11     | 1.38     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.51GHz     |
-| MT8163A (Cortex-A53)      | 2-way             | 2.79     | 1.67     | clang++ 3.6, ALT = 6, PREFETCH = 2560, ASIMD2 intrinsics, 1.5GHz      |
-| MT8163A (Cortex-A53)      | 2-way             | 3.04     | 1.65     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz      |
+| MT8163A (Cortex-A53)      | 2-way             | 3.04     | 1.66     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz      |
 
 [^1]: Prefetch applies only to 512x512 and is tuned for the given core clock; 64x64 is not prefetched.  
 [^2]: The entirety of 512x512 matrices fit in L3, which runs in the same clock domain as the core on SNB & IVB

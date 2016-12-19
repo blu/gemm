@@ -180,25 +180,24 @@ static void matmul(
 	float (&mc)[MATX_SIZE][MATX_SIZE]) {
 
 	for (size_t j = 0; j < MATX_SIZE; ++j) {
-		float* mcp = &mc[j][0];
 		for (size_t k = 0; k < MATX_SIZE; k += 64) {
 
 #if PREFETCH != 0
 			// 64 * sizeof(fp32) = 2^8 bytes = 4 * 64-byte cachelines
-			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 0 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 1 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 2 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 3 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
+			__builtin_prefetch(((const int8_t*) (&mc[j][k + PREFETCH / 2])) + 0 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
+			__builtin_prefetch(((const int8_t*) (&mc[j][k + PREFETCH / 2])) + 1 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
+			__builtin_prefetch(((const int8_t*) (&mc[j][k + PREFETCH / 2])) + 2 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
+			__builtin_prefetch(((const int8_t*) (&mc[j][k + PREFETCH / 2])) + 3 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
 
 #endif
-			__m256 mmc0  = _mm256_load_ps(mcp +  0);
-			__m256 mmc8  = _mm256_load_ps(mcp +  8);
-			__m256 mmc16 = _mm256_load_ps(mcp + 16);
-			__m256 mmc24 = _mm256_load_ps(mcp + 24);
-			__m256 mmc32 = _mm256_load_ps(mcp + 32);
-			__m256 mmc40 = _mm256_load_ps(mcp + 40);
-			__m256 mmc48 = _mm256_load_ps(mcp + 48);
-			__m256 mmc56 = _mm256_load_ps(mcp + 56);
+			__m256 mmc0  = _mm256_load_ps(&mc[j][k +  0]);
+			__m256 mmc8  = _mm256_load_ps(&mc[j][k +  8]);
+			__m256 mmc16 = _mm256_load_ps(&mc[j][k + 16]);
+			__m256 mmc24 = _mm256_load_ps(&mc[j][k + 24]);
+			__m256 mmc32 = _mm256_load_ps(&mc[j][k + 32]);
+			__m256 mmc40 = _mm256_load_ps(&mc[j][k + 40]);
+			__m256 mmc48 = _mm256_load_ps(&mc[j][k + 48]);
+			__m256 mmc56 = _mm256_load_ps(&mc[j][k + 56]);
 
 			for (size_t i = 0; i < MATX_SIZE; ++i) {
 
@@ -214,7 +213,6 @@ static void matmul(
 				const __m256 mmb8  = _mm256_load_ps(&mb[i][k +  8]);
 				const __m256 mmb16 = _mm256_load_ps(&mb[i][k + 16]);
 				const __m256 mmb24 = _mm256_load_ps(&mb[i][k + 24]);
-
 				const __m256 mmb32 = _mm256_load_ps(&mb[i][k + 32]);
 				const __m256 mmb40 = _mm256_load_ps(&mb[i][k + 40]);
 				const __m256 mmb48 = _mm256_load_ps(&mb[i][k + 48]);
@@ -222,51 +220,24 @@ static void matmul(
 
 				const __m256 ma_ji = _mm256_broadcast_ss(&ma[j][i]);
 
-#if MADD != 0
 				mmc0  += ma_ji * mmb0;
 				mmc8  += ma_ji * mmb8;
 				mmc16 += ma_ji * mmb16;
 				mmc24 += ma_ji * mmb24;
-
 				mmc32 += ma_ji * mmb32;
 				mmc40 += ma_ji * mmb40;
 				mmc48 += ma_ji * mmb48;
 				mmc56 += ma_ji * mmb56;
-
-#else
-				const __m256 p0  = ma_ji * mmb0;
-				const __m256 p8  = ma_ji * mmb8;
-				const __m256 p16 = ma_ji * mmb16;
-				const __m256 p24 = ma_ji * mmb24;
-
-				mmc0  += p0;
-				mmc8  += p8;
-				mmc16 += p16;
-				mmc24 += p24;
-
-				const __m256 p32 = ma_ji * mmb32;
-				const __m256 p40 = ma_ji * mmb40;
-				const __m256 p48 = ma_ji * mmb48;
-				const __m256 p56 = ma_ji * mmb56;
-
-				mmc32 += p32;
-				mmc40 += p40;
-				mmc48 += p48;
-				mmc56 += p56;
-
-#endif
 			}
 
-			_mm256_store_ps(mcp +  0, mmc0);
-			_mm256_store_ps(mcp +  8, mmc8);
-			_mm256_store_ps(mcp + 16, mmc16);
-			_mm256_store_ps(mcp + 24, mmc24);
-			_mm256_store_ps(mcp + 32, mmc32);
-			_mm256_store_ps(mcp + 40, mmc40);
-			_mm256_store_ps(mcp + 48, mmc48);
-			_mm256_store_ps(mcp + 56, mmc56);
-
-			mcp += 64;
+			_mm256_store_ps(&mc[j][k +  0], mmc0);
+			_mm256_store_ps(&mc[j][k +  8], mmc8);
+			_mm256_store_ps(&mc[j][k + 16], mmc16);
+			_mm256_store_ps(&mc[j][k + 24], mmc24);
+			_mm256_store_ps(&mc[j][k + 32], mmc32);
+			_mm256_store_ps(&mc[j][k + 40], mmc40);
+			_mm256_store_ps(&mc[j][k + 48], mmc48);
+			_mm256_store_ps(&mc[j][k + 56], mmc56);
 		}
 	}
 }
@@ -875,7 +846,7 @@ int main(int, char**) {
 
 	for (size_t r = 0; r < rep; ++r) {
 		asm volatile ("" : : : "memory");
-		matmul(mb, ma, mc);
+		matmul(ma, mb, mc);
 	}
 
 	const uint64_t dt = timer_nsec() - t0;
