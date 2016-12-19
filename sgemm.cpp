@@ -275,121 +275,70 @@ static void matmul(
 #include <immintrin.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-// sgemm kernel window of 1x128
+// sgemm kernel window of 2x32
 
 static void matmul(
 	const float (&ma)[MATX_SIZE][MATX_SIZE],
 	const float (&mb)[MATX_SIZE][MATX_SIZE],
 	float (&mc)[MATX_SIZE][MATX_SIZE]) {
 
-	for (size_t j = 0; j < MATX_SIZE; ++j) {
-		float* mcp = &mc[j][0];
-		for (size_t k = 0; k < MATX_SIZE; k += 128) {
+	for (size_t j = 0; j < MATX_SIZE; j += 2) {
+		for (size_t k = 0; k < MATX_SIZE; k += 32) {
 
 #if PREFETCH != 0
-			// 128 * sizeof(fp32) = 2^9 bytes = 8 * 64-byte cachelines
-			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 0 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 1 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 2 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 3 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-
-			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 4 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 5 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 6 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) (mcp + PREFETCH / 2)) + 7 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
+			// 32 * sizeof(fp32) = 2^7 bytes = 2 * 64-byte cachelines
+			__builtin_prefetch(((const int8_t*) (&mc[j + 0][k + PREFETCH / 2])) + 0 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
+			__builtin_prefetch(((const int8_t*) (&mc[j + 0][k + PREFETCH / 2])) + 1 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
+			__builtin_prefetch(((const int8_t*) (&mc[j + 1][k + PREFETCH / 2])) + 0 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
+			__builtin_prefetch(((const int8_t*) (&mc[j + 1][k + PREFETCH / 2])) + 1 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
 
 #endif
-			__m256 mmc0   = _mm256_load_ps(mcp +   0);
-			__m256 mmc8   = _mm256_load_ps(mcp +   8);
-			__m256 mmc16  = _mm256_load_ps(mcp +  16);
-			__m256 mmc24  = _mm256_load_ps(mcp +  24);
-			__m256 mmc32  = _mm256_load_ps(mcp +  32);
-			__m256 mmc40  = _mm256_load_ps(mcp +  40);
-			__m256 mmc48  = _mm256_load_ps(mcp +  48);
-			__m256 mmc56  = _mm256_load_ps(mcp +  56);
+			__m256 mmc0_0  = _mm256_load_ps(&mc[j + 0][k +  0]);
+			__m256 mmc0_8  = _mm256_load_ps(&mc[j + 0][k +  8]);
+			__m256 mmc0_16 = _mm256_load_ps(&mc[j + 0][k + 16]);
+			__m256 mmc0_24 = _mm256_load_ps(&mc[j + 0][k + 24]);
 
-			__m256 mmc64  = _mm256_load_ps(mcp +  64);
-			__m256 mmc72  = _mm256_load_ps(mcp +  72);
-			__m256 mmc80  = _mm256_load_ps(mcp +  80);
-			__m256 mmc88  = _mm256_load_ps(mcp +  88);
-			__m256 mmc96  = _mm256_load_ps(mcp +  96);
-			__m256 mmc104 = _mm256_load_ps(mcp + 104);
-			__m256 mmc112 = _mm256_load_ps(mcp + 112);
-			__m256 mmc120 = _mm256_load_ps(mcp + 120);
+			__m256 mmc1_0  = _mm256_load_ps(&mc[j + 1][k +  0]);
+			__m256 mmc1_8  = _mm256_load_ps(&mc[j + 1][k +  8]);
+			__m256 mmc1_16 = _mm256_load_ps(&mc[j + 1][k + 16]);
+			__m256 mmc1_24 = _mm256_load_ps(&mc[j + 1][k + 24]);
 
 			for (size_t i = 0; i < MATX_SIZE; ++i) {
 
 #if PREFETCH != 0
-				// 128 * sizeof(fp32) = 2^9 bytes = 8 * 64-byte cachelines
+				// 32 * sizeof(fp32) = 2^7 bytes = 2 * 64-byte cachelines
 				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
 				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 2 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 3 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 4 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 5 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 6 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 7 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
 
 #endif
-				const __m256 mmb0   = _mm256_load_ps(&mb[i][k +   0]);
-				const __m256 mmb8   = _mm256_load_ps(&mb[i][k +   8]);
-				const __m256 mmb16  = _mm256_load_ps(&mb[i][k +  16]);
-				const __m256 mmb24  = _mm256_load_ps(&mb[i][k +  24]);
-				const __m256 mmb32  = _mm256_load_ps(&mb[i][k +  32]);
-				const __m256 mmb40  = _mm256_load_ps(&mb[i][k +  40]);
-				const __m256 mmb48  = _mm256_load_ps(&mb[i][k +  48]);
-				const __m256 mmb56  = _mm256_load_ps(&mb[i][k +  56]);
+				const __m256 mmb0  = _mm256_load_ps(&mb[i][k +  0]);
+				const __m256 mmb8  = _mm256_load_ps(&mb[i][k +  8]);
+				const __m256 mmb16 = _mm256_load_ps(&mb[i][k + 16]);
+				const __m256 mmb24 = _mm256_load_ps(&mb[i][k + 24]);
 
-				const __m256 mmb64  = _mm256_load_ps(&mb[i][k +  64]);
-				const __m256 mmb72  = _mm256_load_ps(&mb[i][k +  72]);
-				const __m256 mmb80  = _mm256_load_ps(&mb[i][k +  80]);
-				const __m256 mmb88  = _mm256_load_ps(&mb[i][k +  88]);
-				const __m256 mmb96  = _mm256_load_ps(&mb[i][k +  96]);
-				const __m256 mmb104 = _mm256_load_ps(&mb[i][k + 104]);
-				const __m256 mmb112 = _mm256_load_ps(&mb[i][k + 112]);
-				const __m256 mmb120 = _mm256_load_ps(&mb[i][k + 120]);
+				const __m256 ma0_ji = _mm256_broadcast_ss(&ma[j + 0][i]);
+				const __m256 ma1_ji = _mm256_broadcast_ss(&ma[j + 1][i]);
 
-				const __m256 ma_ji = _mm256_broadcast_ss(&ma[j][i]);
+				mmc0_0  += ma0_ji * mmb0;
+				mmc0_8  += ma0_ji * mmb8;
+				mmc0_16 += ma0_ji * mmb16;
+				mmc0_24 += ma0_ji * mmb24;
 
-				mmc0   += ma_ji * mmb0;
-				mmc8   += ma_ji * mmb8;
-				mmc16  += ma_ji * mmb16;
-				mmc24  += ma_ji * mmb24;
-				mmc32  += ma_ji * mmb32;
-				mmc40  += ma_ji * mmb40;
-				mmc48  += ma_ji * mmb48;
-				mmc56  += ma_ji * mmb56;
-
-				mmc64  += ma_ji * mmb64;
-				mmc72  += ma_ji * mmb72;
-				mmc80  += ma_ji * mmb80;
-				mmc88  += ma_ji * mmb88;
-				mmc96  += ma_ji * mmb96;
-				mmc104 += ma_ji * mmb104;
-				mmc112 += ma_ji * mmb112;
-				mmc120 += ma_ji * mmb120;
+				mmc1_0  += ma1_ji * mmb0;
+				mmc1_8  += ma1_ji * mmb8;
+				mmc1_16 += ma1_ji * mmb16;
+				mmc1_24 += ma1_ji * mmb24;
 			}
 
-			_mm256_store_ps(mcp +   0, mmc0);
-			_mm256_store_ps(mcp +   8, mmc8);
-			_mm256_store_ps(mcp +  16, mmc16);
-			_mm256_store_ps(mcp +  24, mmc24);
-			_mm256_store_ps(mcp +  32, mmc32);
-			_mm256_store_ps(mcp +  40, mmc40);
-			_mm256_store_ps(mcp +  48, mmc48);
-			_mm256_store_ps(mcp +  56, mmc56);
-
-			_mm256_store_ps(mcp +  64, mmc64);
-			_mm256_store_ps(mcp +  72, mmc72);
-			_mm256_store_ps(mcp +  80, mmc80);
-			_mm256_store_ps(mcp +  88, mmc88);
-			_mm256_store_ps(mcp +  96, mmc96);
-			_mm256_store_ps(mcp + 104, mmc104);
-			_mm256_store_ps(mcp + 112, mmc112);
-			_mm256_store_ps(mcp + 120, mmc120);
-
-			mcp += 128;
+			_mm256_store_ps(&mc[j + 0][k +  0], mmc0_0);
+			_mm256_store_ps(&mc[j + 0][k +  8], mmc0_8);
+			_mm256_store_ps(&mc[j + 0][k + 16], mmc0_16);
+			_mm256_store_ps(&mc[j + 0][k + 24], mmc0_24);
+                                              
+			_mm256_store_ps(&mc[j + 1][k +  0], mmc1_0);
+			_mm256_store_ps(&mc[j + 1][k +  8], mmc1_8);
+			_mm256_store_ps(&mc[j + 1][k + 16], mmc1_16);
+			_mm256_store_ps(&mc[j + 1][k + 24], mmc1_24);
 		}
 	}
 }
@@ -909,6 +858,9 @@ static void matmul(
 		}
 	}
 }
+
+#else
+	#error unknown ALT
 
 #endif
 int main(int, char**) {
