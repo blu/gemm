@@ -3,7 +3,7 @@
 #include "timer.h"
 
 #define CACHELINE_SIZE 64
-#define PAGE_SIZE 4096
+#define GEMM_PAGE_SIZE 4096
 
 #if !defined(MATX_SIZE)
 #define MATX_SIZE 512
@@ -16,9 +16,9 @@
 #define CATENATE(x, y) x##y
 #define CAT(x, y) CATENATE(x, y)
 
-float ma[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(PAGE_SIZE)));
-float mb[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(PAGE_SIZE)));
-float mc[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(PAGE_SIZE)));
+float ma[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(GEMM_PAGE_SIZE)));
+float mb[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(GEMM_PAGE_SIZE)));
+float mc[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(GEMM_PAGE_SIZE)));
 
 static void fprint_matx(FILE* const out, const float (&mat)[MATX_SIZE][MATX_SIZE]) {
 	for (size_t i = 0; i < sizeof(mat) / sizeof(mat[0]); ++i) {
@@ -64,39 +64,54 @@ static void matmul(
 
 #elif ALT == 1
 ////////////////////////////////////////////////////////////////////////////////////////////////
-// sgemm kernel window of 1x16
+// sgemm kernel window of 2x16
 
 static void matmul(
 	const float (&ma)[MATX_SIZE][MATX_SIZE],
 	const float (&mb)[MATX_SIZE][MATX_SIZE],
 	float (&mc)[MATX_SIZE][MATX_SIZE]) {
 
-	for (size_t j = 0; j < MATX_SIZE; ++j) {
+	for (size_t j = 0; j < MATX_SIZE; j += 2) {
 		for (size_t k = 0; k < MATX_SIZE; k += 16) {
 
-#if PREFETCH != 0
-			// 16 * sizeof(fp32) = 2^6 bytes = 1 * 64-byte cachelines
-			__builtin_prefetch(((const int8_t*) &mc[j][k + PREFETCH / 2]) + 0 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
+			float mmc0[16] = {
+				mc[j + 0][k +  0],
+				mc[j + 0][k +  1],
+				mc[j + 0][k +  2],
+				mc[j + 0][k +  3],
+				mc[j + 0][k +  4],
+				mc[j + 0][k +  5],
+				mc[j + 0][k +  6],
+				mc[j + 0][k +  7],
 
-#endif
-			float mmc[16] __attribute__ ((aligned(32))) = {
-				mc[j][k +  0],
-				mc[j][k +  1],
-				mc[j][k +  2],
-				mc[j][k +  3],
-				mc[j][k +  4],
-				mc[j][k +  5],
-				mc[j][k +  6],
-				mc[j][k +  7],
+				mc[j + 0][k +  8],
+				mc[j + 0][k +  9],
+				mc[j + 0][k + 10],
+				mc[j + 0][k + 11],
+				mc[j + 0][k + 12],
+				mc[j + 0][k + 13],
+				mc[j + 0][k + 14],
+				mc[j + 0][k + 15]
+			};
 
-				mc[j][k +  8],
-				mc[j][k +  9],
-				mc[j][k + 10],
-				mc[j][k + 11],
-				mc[j][k + 12],
-				mc[j][k + 13],
-				mc[j][k + 14],
-				mc[j][k + 15]
+			float mmc1[16] = {
+				mc[j + 1][k +  0],
+				mc[j + 1][k +  1],
+				mc[j + 1][k +  2],
+				mc[j + 1][k +  3],
+				mc[j + 1][k +  4],
+				mc[j + 1][k +  5],
+				mc[j + 1][k +  6],
+				mc[j + 1][k +  7],
+
+				mc[j + 1][k +  8],
+				mc[j + 1][k +  9],
+				mc[j + 1][k + 10],
+				mc[j + 1][k + 11],
+				mc[j + 1][k + 12],
+				mc[j + 1][k + 13],
+				mc[j + 1][k + 14],
+				mc[j + 1][k + 15]
 			};
 
 			for (size_t i = 0; i < MATX_SIZE; ++i) {
@@ -106,7 +121,7 @@ static void matmul(
 				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
 
 #endif
-				const float mmb[16] __attribute__ ((aligned(32))) = {
+				const float mmb[16] = {
 					mb[i][k +  0],
 					mb[i][k +  1],
 					mb[i][k +  2],
@@ -126,44 +141,81 @@ static void matmul(
 					mb[i][k + 15]
 				};
 
-				const float ma_ji = ma[j][i];
+				const float ma0_ji = ma[j + 0][i];
+				const float ma1_ji = ma[j + 1][i];
 
-				mmc[ 0] += ma_ji * mmb[ 0];
-				mmc[ 1] += ma_ji * mmb[ 1];
-				mmc[ 2] += ma_ji * mmb[ 2];
-				mmc[ 3] += ma_ji * mmb[ 3];
-				mmc[ 4] += ma_ji * mmb[ 4];
-				mmc[ 5] += ma_ji * mmb[ 5];
-				mmc[ 6] += ma_ji * mmb[ 6];
-				mmc[ 7] += ma_ji * mmb[ 7];
+				mmc0[ 0] += ma0_ji * mmb[ 0];
+				mmc0[ 1] += ma0_ji * mmb[ 1];
+				mmc0[ 2] += ma0_ji * mmb[ 2];
+				mmc0[ 3] += ma0_ji * mmb[ 3];
+				mmc0[ 4] += ma0_ji * mmb[ 4];
+				mmc0[ 5] += ma0_ji * mmb[ 5];
+				mmc0[ 6] += ma0_ji * mmb[ 6];
+				mmc0[ 7] += ma0_ji * mmb[ 7];
 
-				mmc[ 8] += ma_ji * mmb[ 8];
-				mmc[ 9] += ma_ji * mmb[ 9];
-				mmc[10] += ma_ji * mmb[10];
-				mmc[11] += ma_ji * mmb[11];
-				mmc[12] += ma_ji * mmb[12];
-				mmc[13] += ma_ji * mmb[13];
-				mmc[14] += ma_ji * mmb[14];
-				mmc[15] += ma_ji * mmb[15];
+				mmc0[ 8] += ma0_ji * mmb[ 8];
+				mmc0[ 9] += ma0_ji * mmb[ 9];
+				mmc0[10] += ma0_ji * mmb[10];
+				mmc0[11] += ma0_ji * mmb[11];
+				mmc0[12] += ma0_ji * mmb[12];
+				mmc0[13] += ma0_ji * mmb[13];
+				mmc0[14] += ma0_ji * mmb[14];
+				mmc0[15] += ma0_ji * mmb[15];
+
+				mmc1[ 0] += ma1_ji * mmb[ 0];
+				mmc1[ 1] += ma1_ji * mmb[ 1];
+				mmc1[ 2] += ma1_ji * mmb[ 2];
+				mmc1[ 3] += ma1_ji * mmb[ 3];
+				mmc1[ 4] += ma1_ji * mmb[ 4];
+				mmc1[ 5] += ma1_ji * mmb[ 5];
+				mmc1[ 6] += ma1_ji * mmb[ 6];
+				mmc1[ 7] += ma1_ji * mmb[ 7];
+
+				mmc1[ 8] += ma1_ji * mmb[ 8];
+				mmc1[ 9] += ma1_ji * mmb[ 9];
+				mmc1[10] += ma1_ji * mmb[10];
+				mmc1[11] += ma1_ji * mmb[11];
+				mmc1[12] += ma1_ji * mmb[12];
+				mmc1[13] += ma1_ji * mmb[13];
+				mmc1[14] += ma1_ji * mmb[14];
+				mmc1[15] += ma1_ji * mmb[15];
 			}
 
-			mc[j][k +  0] = mmc[ 0];
-			mc[j][k +  1] = mmc[ 1];
-			mc[j][k +  2] = mmc[ 2];
-			mc[j][k +  3] = mmc[ 3];
-			mc[j][k +  4] = mmc[ 4];
-			mc[j][k +  5] = mmc[ 5];
-			mc[j][k +  6] = mmc[ 6];
-			mc[j][k +  7] = mmc[ 7];
+			mc[j + 0][k +  0] = mmc0[ 0];
+			mc[j + 0][k +  1] = mmc0[ 1];
+			mc[j + 0][k +  2] = mmc0[ 2];
+			mc[j + 0][k +  3] = mmc0[ 3];
+			mc[j + 0][k +  4] = mmc0[ 4];
+			mc[j + 0][k +  5] = mmc0[ 5];
+			mc[j + 0][k +  6] = mmc0[ 6];
+			mc[j + 0][k +  7] = mmc0[ 7];
 
-			mc[j][k +  8] = mmc[ 8];
-			mc[j][k +  9] = mmc[ 9];
-			mc[j][k + 10] = mmc[10];
-			mc[j][k + 11] = mmc[11];
-			mc[j][k + 12] = mmc[12];
-			mc[j][k + 13] = mmc[13];
-			mc[j][k + 14] = mmc[14];
-			mc[j][k + 15] = mmc[15];
+			mc[j + 0][k +  8] = mmc0[ 8];
+			mc[j + 0][k +  9] = mmc0[ 9];
+			mc[j + 0][k + 10] = mmc0[10];
+			mc[j + 0][k + 11] = mmc0[11];
+			mc[j + 0][k + 12] = mmc0[12];
+			mc[j + 0][k + 13] = mmc0[13];
+			mc[j + 0][k + 14] = mmc0[14];
+			mc[j + 0][k + 15] = mmc0[15];
+
+			mc[j + 1][k +  0] = mmc1[ 0];
+			mc[j + 1][k +  1] = mmc1[ 1];
+			mc[j + 1][k +  2] = mmc1[ 2];
+			mc[j + 1][k +  3] = mmc1[ 3];
+			mc[j + 1][k +  4] = mmc1[ 4];
+			mc[j + 1][k +  5] = mmc1[ 5];
+			mc[j + 1][k +  6] = mmc1[ 6];
+			mc[j + 1][k +  7] = mmc1[ 7];
+
+			mc[j + 1][k +  8] = mmc1[ 8];
+			mc[j + 1][k +  9] = mmc1[ 9];
+			mc[j + 1][k + 10] = mmc1[10];
+			mc[j + 1][k + 11] = mmc1[11];
+			mc[j + 1][k + 12] = mmc1[12];
+			mc[j + 1][k + 13] = mmc1[13];
+			mc[j + 1][k + 14] = mmc1[14];
+			mc[j + 1][k + 15] = mmc1[15];
 		}
 	}
 }
