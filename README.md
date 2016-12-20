@@ -35,7 +35,7 @@ Results
 
 Best results measured in SP flops/clock by the formula:
 
-	(MATX_SIZE^3 * 2) flops_per_matrix * 10^REP_EXP repetitions / (CPU_freq * duration)
+	MATX_SIZE^3 * 2 * 10^REP_EXP / (CPU_freq * duration)
 
 | CPU (single thread only)  | width of SIMD ALU | 64x64    | 512x512  | remarks [^1]                                                          |
 | ------------------------- | ----------------- | -------- | -------- | --------------------------------------------------------------------- |
