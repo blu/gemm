@@ -10,7 +10,7 @@ The low-tech bash script `build_sgemm.sh` will try to build the test for a 64-bi
 
 * `ALT` - implementation alternatives (differing by the unrolling of the innermost loop)
 	* -1 - scalar version
-	*  0 - 16-element-wide version
+	*  0 - 16-element-wide version suitable for autovectorizers
 	*  1 - 2x16-element-wide version suitable for autovectorizers
 	*  2 - 64-element-wide AVX256 version
 	*  3 - 2x64-element-wide AVX256 version
