@@ -43,7 +43,7 @@ enum {
 
 #endif
 
-#if ALT == 0
+#if ALT == -1
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // sgemm scalar kernel
 
@@ -58,6 +58,107 @@ static void matmul(
 
 			for (size_t k = 0; k < MATX_SIZE; ++k)
 				mc[j][k] += ma_ji * mb[i][k];
+		}
+	}
+}
+
+#elif ALT == 0
+////////////////////////////////////////////////////////////////////////////////////////////////
+// sgemm kernel window of 1x16
+
+static void matmul(
+	const float (&ma)[MATX_SIZE][MATX_SIZE],
+	const float (&mb)[MATX_SIZE][MATX_SIZE],
+	float (&mc)[MATX_SIZE][MATX_SIZE]) {
+
+	for (size_t j = 0; j < MATX_SIZE; ++j) {
+		for (size_t k = 0; k < MATX_SIZE; k += 16) {
+
+			float mmc[16] = {
+				mc[j][k +  0],
+				mc[j][k +  1],
+				mc[j][k +  2],
+				mc[j][k +  3],
+				mc[j][k +  4],
+				mc[j][k +  5],
+				mc[j][k +  6],
+				mc[j][k +  7],
+
+				mc[j][k +  8],
+				mc[j][k +  9],
+				mc[j][k + 10],
+				mc[j][k + 11],
+				mc[j][k + 12],
+				mc[j][k + 13],
+				mc[j][k + 14],
+				mc[j][k + 15]
+			};
+
+			for (size_t i = 0; i < MATX_SIZE; ++i) {
+
+#if PREFETCH != 0
+				// 16 * sizeof(fp32) = 2^6 bytes = 1 * 64-byte cachelines
+				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+
+#endif
+				const float mmb[16] = {
+					mb[i][k +  0],
+					mb[i][k +  1],
+					mb[i][k +  2],
+					mb[i][k +  3],
+					mb[i][k +  4],
+					mb[i][k +  5],
+					mb[i][k +  6],
+					mb[i][k +  7],
+
+					mb[i][k +  8],
+					mb[i][k +  9],
+					mb[i][k + 10],
+					mb[i][k + 11],
+					mb[i][k + 12],
+					mb[i][k + 13],
+					mb[i][k + 14],
+					mb[i][k + 15]
+				};
+
+				const float ma_ji = ma[j][i];
+
+				mmc[ 0] += ma_ji * mmb[ 0];
+				mmc[ 1] += ma_ji * mmb[ 1];
+				mmc[ 2] += ma_ji * mmb[ 2];
+				mmc[ 3] += ma_ji * mmb[ 3];
+				mmc[ 4] += ma_ji * mmb[ 4];
+				mmc[ 5] += ma_ji * mmb[ 5];
+				mmc[ 6] += ma_ji * mmb[ 6];
+				mmc[ 7] += ma_ji * mmb[ 7];
+
+				mmc[ 8] += ma_ji * mmb[ 8];
+				mmc[ 9] += ma_ji * mmb[ 9];
+				mmc[10] += ma_ji * mmb[10];
+				mmc[11] += ma_ji * mmb[11];
+				mmc[12] += ma_ji * mmb[12];
+				mmc[13] += ma_ji * mmb[13];
+				mmc[14] += ma_ji * mmb[14];
+				mmc[15] += ma_ji * mmb[15];
+			}
+
+			mc[j][k +  0] = mmc[ 0];
+			mc[j][k +  1] = mmc[ 1];
+			mc[j][k +  2] = mmc[ 2];
+			mc[j][k +  3] = mmc[ 3];
+			mc[j][k +  4] = mmc[ 4];
+			mc[j][k +  5] = mmc[ 5];
+			mc[j][k +  6] = mmc[ 6];
+			mc[j][k +  7] = mmc[ 7];
+
+			mc[j][k +  8] = mmc[ 8];
+			mc[j][k +  9] = mmc[ 9];
+			mc[j][k + 10] = mmc[10];
+			mc[j][k + 11] = mmc[11];
+			mc[j][k + 12] = mmc[12];
+			mc[j][k + 13] = mmc[13];
+			mc[j][k + 14] = mmc[14];
+			mc[j][k + 15] = mmc[15];
 		}
 	}
 }
