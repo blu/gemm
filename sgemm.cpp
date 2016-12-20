@@ -335,14 +335,6 @@ static void matmul(
 	for (size_t j = 0; j < MATX_SIZE; ++j) {
 		for (size_t k = 0; k < MATX_SIZE; k += 64) {
 
-#if PREFETCH != 0
-			// 64 * sizeof(fp32) = 2^8 bytes = 4 * 64-byte cachelines
-			__builtin_prefetch(((const int8_t*) (&mc[j][k + PREFETCH / 2])) + 0 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) (&mc[j][k + PREFETCH / 2])) + 1 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) (&mc[j][k + PREFETCH / 2])) + 2 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) (&mc[j][k + PREFETCH / 2])) + 3 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-
-#endif
 			__m256 mmc0  = _mm256_load_ps(&mc[j][k +  0]);
 			__m256 mmc8  = _mm256_load_ps(&mc[j][k +  8]);
 			__m256 mmc16 = _mm256_load_ps(&mc[j][k + 16]);
@@ -409,14 +401,6 @@ static void matmul(
 	for (size_t j = 0; j < MATX_SIZE; j += 2) {
 		for (size_t k = 0; k < MATX_SIZE; k += 32) {
 
-#if PREFETCH != 0
-			// 32 * sizeof(fp32) = 2^7 bytes = 2 * 64-byte cachelines
-			__builtin_prefetch(((const int8_t*) (&mc[j + 0][k + PREFETCH / 2])) + 0 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) (&mc[j + 0][k + PREFETCH / 2])) + 1 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) (&mc[j + 1][k + PREFETCH / 2])) + 0 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-			__builtin_prefetch(((const int8_t*) (&mc[j + 1][k + PREFETCH / 2])) + 1 * CACHELINE_SIZE, prefetch_rw, prefetch_t3);
-
-#endif
 			__m256 mmc0_0  = _mm256_load_ps(&mc[j + 0][k +  0]);
 			__m256 mmc0_8  = _mm256_load_ps(&mc[j + 0][k +  8]);
 			__m256 mmc0_16 = _mm256_load_ps(&mc[j + 0][k + 16]);
