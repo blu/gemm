@@ -45,6 +45,7 @@ Best results measured in SP flops/clock by the formula:
 | Intel E5-2687W (SNB)      | 8-way             | 13.79    | 10.17    | clang++ 3.6, ALT = 3, PREFETCH = 3584, AVX256 intrinsics, 3.1GHz [^2] |
 | Intel E5-2687W (SNB)      | 8-way             | 14.27    | 10.25    | g++     4.8, ALT = 3, PREFETCH = 3584, AVX256 intrinsics, 3.1GHz [^2] |
 | Intel E3-1270v2 (IVB)     | 8-way             | 13.40    | 11.05    | clang++ 3.6, ALT = 3, PREFETCH = 3072, AVX256 intrinsics, 1.6GHz [^2] |
+| Intel E3-1270v2 (IVB)     | 8-way             | 14.01    | 11.22    | g++     4.8, ALT = 3, PREFETCH = 3072, AVX256 intrinsics, 1.6GHz [^2] |
 | Intel i7-4770 (HSW)       | 8-way             | 22.72    | 11.65    | g++     5.1, ALT = 3, PREFETCH = 2560, AVX256+FMA3 intrinsics, 3.9GHz |
 | RK3368 (Cortex-A53)       | 2-way             | 3.11     | 1.38     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.51GHz     |
 | MT8163A (Cortex-A53)      | 2-way             | 3.04     | 1.66     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz      |
