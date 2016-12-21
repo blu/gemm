@@ -37,18 +37,19 @@ Best results measured in SP flops/clock by the formula:
 
 	MATX_SIZE^3 * 2 * 10^REP_EXP / (CPU_freq * duration)
 
-| CPU (single thread only)  | width of SIMD ALU | 64x64    | 512x512  | remarks [^1]                                                          |
-| ------------------------- | ----------------- | -------- | -------- | --------------------------------------------------------------------- |
-| AMD C60 (Bobcat)          | 2-way             | 1.51     | 0.85     | clang++ 3.6, ALT = 0, PREFETCH = 3072, autovectorized SSE2, 1.33GHz   |
-| AMD C60 (Bobcat)          | 2-way             | 1.49     | 1.28     | clang++ 3.6, ALT = 1, PREFETCH = 3072, autovectorized SSE2, 1.33GHz   |
-| Intel Core2 T5600         | 4-way             | 3.32     | 2.71     | clang++ 3.4, ALT = 1, PREFETCH = 4096, autovectorized SSE2, 1.83GHz   |
-| Intel E5-2687W (SNB)      | 8-way             | 13.79    | 10.17    | clang++ 3.6, ALT = 3, PREFETCH = 3584, AVX256 intrinsics, 3.1GHz [^2] |
-| Intel E5-2687W (SNB)      | 8-way             | 14.27    | 10.25    | g++     4.8, ALT = 3, PREFETCH = 3584, AVX256 intrinsics, 3.1GHz [^2] |
-| Intel E3-1270v2 (IVB)     | 8-way             | 13.40    | 11.05    | clang++ 3.6, ALT = 3, PREFETCH = 3072, AVX256 intrinsics, 1.6GHz [^2] |
-| Intel E3-1270v2 (IVB)     | 8-way             | 14.01    | 11.22    | g++     4.8, ALT = 3, PREFETCH = 3072, AVX256 intrinsics, 1.6GHz [^2] |
-| Intel i7-4770 (HSW)       | 8-way             | 22.72    | 11.65    | g++     5.1, ALT = 3, PREFETCH = 2560, AVX256+FMA3 intrinsics, 3.9GHz |
-| RK3368 (Cortex-A53)       | 2-way             | 3.11     | 1.38     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.51GHz     |
-| MT8163A (Cortex-A53)      | 2-way             | 3.04     | 1.66     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz      |
+| CPU (single thread only)  | width of SIMD ALU | RAM GB/s  | LLC/core    | 64x64    | 512x512  | remarks [^1]                                                          |
+| ------------------------- | ----------------- | --------- | ----------- | -------- | -------- | --------------------------------------------------------------------- |
+| AMD C60 (Bobcat)          | 2-way             | 8.53      | 512 KB      | 1.51     | 0.85     | clang++ 3.6, ALT = 0, PREFETCH = 3072, autovectorized SSE2, 1.33GHz   |
+| AMD C60 (Bobcat)          | 2-way             | 8.53      | 512 KB      | 1.49     | 1.28     | clang++ 3.6, ALT = 1, PREFETCH = 3072, autovectorized SSE2, 1.33GHz   |
+| Intel Core2 T5600         | 4-way             | 5.33      | 2 MB        | 3.32     | 2.71     | clang++ 3.4, ALT = 1, PREFETCH = 4096, autovectorized SSE2, 1.83GHz   |
+| Intel E5-2687W (SNB)      | 8-way             | 25.6      | 20 MB  [^2] | 13.79    | 10.17    | clang++ 3.6, ALT = 3, PREFETCH = 3584, AVX256 intrinsics, 3.1GHz      |
+| Intel E5-2687W (SNB)      | 8-way             | 25.6      | 20 MB  [^2] | 14.27    | 10.25    | g++     4.8, ALT = 3, PREFETCH = 3584, AVX256 intrinsics, 3.1GHz      |
+| Intel E3-1270v2 (IVB)     | 8-way             | 25.6      | 8 MB   [^2] | 13.40    | 11.05    | clang++ 3.6, ALT = 3, PREFETCH = 3072, AVX256 intrinsics, 1.6GHz      |
+| Intel E3-1270v2 (IVB)     | 8-way             | 25.6      | 8 MB   [^2] | 14.01    | 11.22    | g++     4.8, ALT = 3, PREFETCH = 3072, AVX256 intrinsics, 1.6GHz      |
+| Intel i7-4770 (HSW)       | 8-way             | 25.6      | 8 MB   [^2] | 22.72    | 11.65    | g++     5.1, ALT = 3, PREFETCH = 2560, AVX256+FMA3 intrinsics, 3.9GHz |
+| RK3368 (Cortex-A53)       | 2-way             | 6.4       | 512 KB [^3] | 3.11     | 1.38     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.51GHz     |
+| MT8163A (Cortex-A53)      | 2-way             | 6.4       | 512 KB      | 3.04     | 1.66     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz      |
 
 [^1]: Prefetch applies only to 512x512 and is tuned for the given core clock; 64x64 is not prefetched.  
-[^2]: The entirety of 512x512 matrices fit in L3, which runs in the same clock domain as the core on SNB & IVB
+[^2]: The entirety of 512x512 matrices fit in L3, which runs in the clock domain of the cores on SNB & IVB, but in its own clock domain on HSW.  
+[^3]: Amount of shared L2 in the 'big' cluster.
