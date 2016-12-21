@@ -8,27 +8,30 @@ CFLAGS=(
 	-fno-exceptions
 )
 CC_FILENAME=${CC##*/}
-if [[ ${CC_FILENAME:0:3} == "g++" ]]; then
-	CFLAGS+=(
-		-ffast-math
-	)
-
-elif [[ ${CC_FILENAME:0:7} == "clang++" ]]; then
+if [[ $CC_FILENAME == *clang++* ]]; then
 	CFLAGS+=(
 		-ffp-contract=fast
 	)
 
-elif [[ ${CC_FILENAME:0:4} == "icpc" ]]; then
+elif [[ $CC_FILENAME == *g++* ]]; then
+	CFLAGS+=(
+		-ffast-math
+	)
+
+elif [[ $CC_FILENAME == *icpc* ]]; then
 	CFLAGS+=(
 		-fp-model fast=2
 		-opt-prefetch=0
 		-opt-streaming-cache-evict=0
 	)
 fi
-if [[ ${MACHTYPE} =~ "-apple-darwin" ]]; then
+if [[ $MACHTYPE == *-pc-msys ]]; then
+	# nothing mingw-specific, yet
+	LFLAGS=()
+elif [[ $MACHTYPE == *-apple-darwin* ]]; then
 	# nothing darwin-specific, yet
 	LFLAGS=()
-elif [[ ${MACHTYPE} =~ "-linux-" ]]; then
+elif [[ $MACHTYPE == *-linux-* ]]; then
 	LFLAGS=(
 		-lrt
 	)
@@ -67,7 +70,7 @@ if [[ $UNAME_MACHINE == "aarch64" ]]; then
 		)
 	fi
 
-elif [[ $HOSTTYPE == "x86_64" ]]; then
+elif [[ $HOSTTYPE == "x86_64" || $HOSTTYPE == "i686" ]]; then
 
 	CFLAGS+=(
 		-march=native
@@ -85,6 +88,6 @@ elif [[ $HOSTTYPE == "powerpc64" || $HOSTTYPE == "ppc64" ]]; then
 	)
 fi
 
-BUILD_CMD=${CC}" -o sgemm "${CFLAGS[@]}" sgemm.cpp "${LFLAGS[@]}" "${@}
-echo $BUILD_CMD
-$BUILD_CMD
+BUILD_CMD="-o sgemm "${CFLAGS[@]}" sgemm.cpp "${LFLAGS[@]}" "${@}
+echo $CC $BUILD_CMD
+"$CC" $BUILD_CMD
