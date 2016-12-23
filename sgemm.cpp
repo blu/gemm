@@ -164,6 +164,8 @@ static void matmul(
 }
 
 #elif ALT == 1
+#include <xmmintrin.h>
+
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // sgemm kernel window of 2x16
 
@@ -175,45 +177,15 @@ static void matmul(
 	for (size_t j = 0; j < MATX_SIZE; j += 2) {
 		for (size_t k = 0; k < MATX_SIZE; k += 16) {
 
-			float mmc0[16] = {
-				mc[j + 0][k +  0],
-				mc[j + 0][k +  1],
-				mc[j + 0][k +  2],
-				mc[j + 0][k +  3],
-				mc[j + 0][k +  4],
-				mc[j + 0][k +  5],
-				mc[j + 0][k +  6],
-				mc[j + 0][k +  7],
+			__m128 mmc0_0  = _mm_load_ps(&mc[j + 0][k +  0]);
+			__m128 mmc0_4  = _mm_load_ps(&mc[j + 0][k +  4]);
+			__m128 mmc0_8  = _mm_load_ps(&mc[j + 0][k +  8]);
+			__m128 mmc0_12 = _mm_load_ps(&mc[j + 0][k + 12]);
 
-				mc[j + 0][k +  8],
-				mc[j + 0][k +  9],
-				mc[j + 0][k + 10],
-				mc[j + 0][k + 11],
-				mc[j + 0][k + 12],
-				mc[j + 0][k + 13],
-				mc[j + 0][k + 14],
-				mc[j + 0][k + 15]
-			};
-
-			float mmc1[16] = {
-				mc[j + 1][k +  0],
-				mc[j + 1][k +  1],
-				mc[j + 1][k +  2],
-				mc[j + 1][k +  3],
-				mc[j + 1][k +  4],
-				mc[j + 1][k +  5],
-				mc[j + 1][k +  6],
-				mc[j + 1][k +  7],
-
-				mc[j + 1][k +  8],
-				mc[j + 1][k +  9],
-				mc[j + 1][k + 10],
-				mc[j + 1][k + 11],
-				mc[j + 1][k + 12],
-				mc[j + 1][k + 13],
-				mc[j + 1][k + 14],
-				mc[j + 1][k + 15]
-			};
+			__m128 mmc1_0  = _mm_load_ps(&mc[j + 1][k +  0]);
+			__m128 mmc1_4  = _mm_load_ps(&mc[j + 1][k +  4]);
+			__m128 mmc1_8  = _mm_load_ps(&mc[j + 1][k +  8]);
+			__m128 mmc1_12 = _mm_load_ps(&mc[j + 1][k + 12]);
 
 			for (size_t i = 0; i < MATX_SIZE; ++i) {
 
@@ -222,101 +194,34 @@ static void matmul(
 				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
 
 #endif
-				const float mmb[16] = {
-					mb[i][k +  0],
-					mb[i][k +  1],
-					mb[i][k +  2],
-					mb[i][k +  3],
-					mb[i][k +  4],
-					mb[i][k +  5],
-					mb[i][k +  6],
-					mb[i][k +  7],
+				const __m128 mmb0  = _mm_load_ps(&mb[i][k +  0]);
+				const __m128 mmb4  = _mm_load_ps(&mb[i][k +  4]);
+				const __m128 mmb8  = _mm_load_ps(&mb[i][k +  8]);
+				const __m128 mmb12 = _mm_load_ps(&mb[i][k + 12]);
 
-					mb[i][k +  8],
-					mb[i][k +  9],
-					mb[i][k + 10],
-					mb[i][k + 11],
-					mb[i][k + 12],
-					mb[i][k + 13],
-					mb[i][k + 14],
-					mb[i][k + 15]
-				};
+				const __m128 ma0_ji = _mm_load1_ps(&ma[j + 0][i]);
+				const __m128 ma1_ji = _mm_load1_ps(&ma[j + 1][i]);
 
-				const float ma0_ji = ma[j + 0][i];
-				const float ma1_ji = ma[j + 1][i];
+				mmc0_0  += ma0_ji * mmb0;
+				mmc0_4  += ma0_ji * mmb4;
+				mmc0_8  += ma0_ji * mmb8;
+				mmc0_12 += ma0_ji * mmb12;
 
-				mmc0[ 0] += ma0_ji * mmb[ 0];
-				mmc0[ 1] += ma0_ji * mmb[ 1];
-				mmc0[ 2] += ma0_ji * mmb[ 2];
-				mmc0[ 3] += ma0_ji * mmb[ 3];
-				mmc0[ 4] += ma0_ji * mmb[ 4];
-				mmc0[ 5] += ma0_ji * mmb[ 5];
-				mmc0[ 6] += ma0_ji * mmb[ 6];
-				mmc0[ 7] += ma0_ji * mmb[ 7];
-
-				mmc0[ 8] += ma0_ji * mmb[ 8];
-				mmc0[ 9] += ma0_ji * mmb[ 9];
-				mmc0[10] += ma0_ji * mmb[10];
-				mmc0[11] += ma0_ji * mmb[11];
-				mmc0[12] += ma0_ji * mmb[12];
-				mmc0[13] += ma0_ji * mmb[13];
-				mmc0[14] += ma0_ji * mmb[14];
-				mmc0[15] += ma0_ji * mmb[15];
-
-				mmc1[ 0] += ma1_ji * mmb[ 0];
-				mmc1[ 1] += ma1_ji * mmb[ 1];
-				mmc1[ 2] += ma1_ji * mmb[ 2];
-				mmc1[ 3] += ma1_ji * mmb[ 3];
-				mmc1[ 4] += ma1_ji * mmb[ 4];
-				mmc1[ 5] += ma1_ji * mmb[ 5];
-				mmc1[ 6] += ma1_ji * mmb[ 6];
-				mmc1[ 7] += ma1_ji * mmb[ 7];
-
-				mmc1[ 8] += ma1_ji * mmb[ 8];
-				mmc1[ 9] += ma1_ji * mmb[ 9];
-				mmc1[10] += ma1_ji * mmb[10];
-				mmc1[11] += ma1_ji * mmb[11];
-				mmc1[12] += ma1_ji * mmb[12];
-				mmc1[13] += ma1_ji * mmb[13];
-				mmc1[14] += ma1_ji * mmb[14];
-				mmc1[15] += ma1_ji * mmb[15];
+				mmc1_0  += ma1_ji * mmb0;
+				mmc1_4  += ma1_ji * mmb4;
+				mmc1_8  += ma1_ji * mmb8;
+				mmc1_12 += ma1_ji * mmb12;
 			}
 
-			mc[j + 0][k +  0] = mmc0[ 0];
-			mc[j + 0][k +  1] = mmc0[ 1];
-			mc[j + 0][k +  2] = mmc0[ 2];
-			mc[j + 0][k +  3] = mmc0[ 3];
-			mc[j + 0][k +  4] = mmc0[ 4];
-			mc[j + 0][k +  5] = mmc0[ 5];
-			mc[j + 0][k +  6] = mmc0[ 6];
-			mc[j + 0][k +  7] = mmc0[ 7];
+			_mm_store_ps(&mc[j + 0][k +  0], mmc0_0);
+			_mm_store_ps(&mc[j + 0][k +  4], mmc0_4);
+			_mm_store_ps(&mc[j + 0][k +  8], mmc0_8);
+			_mm_store_ps(&mc[j + 0][k + 12], mmc0_12);
 
-			mc[j + 0][k +  8] = mmc0[ 8];
-			mc[j + 0][k +  9] = mmc0[ 9];
-			mc[j + 0][k + 10] = mmc0[10];
-			mc[j + 0][k + 11] = mmc0[11];
-			mc[j + 0][k + 12] = mmc0[12];
-			mc[j + 0][k + 13] = mmc0[13];
-			mc[j + 0][k + 14] = mmc0[14];
-			mc[j + 0][k + 15] = mmc0[15];
-
-			mc[j + 1][k +  0] = mmc1[ 0];
-			mc[j + 1][k +  1] = mmc1[ 1];
-			mc[j + 1][k +  2] = mmc1[ 2];
-			mc[j + 1][k +  3] = mmc1[ 3];
-			mc[j + 1][k +  4] = mmc1[ 4];
-			mc[j + 1][k +  5] = mmc1[ 5];
-			mc[j + 1][k +  6] = mmc1[ 6];
-			mc[j + 1][k +  7] = mmc1[ 7];
-
-			mc[j + 1][k +  8] = mmc1[ 8];
-			mc[j + 1][k +  9] = mmc1[ 9];
-			mc[j + 1][k + 10] = mmc1[10];
-			mc[j + 1][k + 11] = mmc1[11];
-			mc[j + 1][k + 12] = mmc1[12];
-			mc[j + 1][k + 13] = mmc1[13];
-			mc[j + 1][k + 14] = mmc1[14];
-			mc[j + 1][k + 15] = mmc1[15];
+			_mm_store_ps(&mc[j + 1][k +  0], mmc1_0);
+			_mm_store_ps(&mc[j + 1][k +  4], mmc1_4);
+			_mm_store_ps(&mc[j + 1][k +  8], mmc1_8);
+			_mm_store_ps(&mc[j + 1][k + 12], mmc1_12);
 		}
 	}
 }

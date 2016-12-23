@@ -11,7 +11,7 @@ The low-tech bash script `build_sgemm.sh` will try to build the test for a 64-bi
 * `ALT` - implementation alternatives
 	* -1 - scalar version
 	*  0 - 16-element-wide version suitable for autovectorizers
-	*  1 - 2x16-element-wide version suitable for autovectorizers
+	*  1 - 2x16-element-wide SSE2 version
 	*  2 - 64-element-wide AVX256 version
 	*  3 - 2x64-element-wide AVX256 version
 	*  4 - 16-element-wide ASIMD2 (aarch64) version
@@ -39,9 +39,8 @@ Best results measured in SP flops/clock by the formula:
 
 | CPU (single thread only)  | width of SIMD ALU | RAM GB/s  | LLC/core    | 64x64    | 512x512  | remarks [^1]                                                          |
 | ------------------------- | ----------------- | --------- | ----------- | -------- | -------- | --------------------------------------------------------------------- |
-| AMD C60 (Bobcat)          | 2-way             | 8.53      | 512 KB      | 1.51     | 0.85     | clang++ 3.6, ALT = 0, PREFETCH = 3072, autovectorized SSE2, 1.33GHz   |
-| AMD C60 (Bobcat)          | 2-way             | 8.53      | 512 KB      | 1.49     | 1.28     | clang++ 3.6, ALT = 1, PREFETCH = 3072, autovectorized SSE2, 1.33GHz   |
-| Intel Core2 T5600         | 4-way             | 5.33      | 2 MB        | 3.32     | 2.71     | clang++ 3.4, ALT = 1, PREFETCH = 4096, autovectorized SSE2, 1.83GHz   |
+| AMD C60 (Bobcat)          | 2-way             | 8.53      | 512 KB      | 1.94     | 1.47     | g++     4.8, ALT = 1, PREFETCH = 2560, SSE2 intrinsics, 1.33GHz       |
+| Intel Core2 T5600         | 4-way             | 5.33      | 2 MB        | 3.31     | 2.82     | clang++ 3.4, ALT = 1, PREFETCH = 4096, SSE2 intrinsics, 1.83GHz       |
 | Intel E5-2687W (SNB)      | 8-way             | 25.6      | 20 MB  [^2] | 13.79    | 10.17    | clang++ 3.6, ALT = 3, PREFETCH = 3584, AVX256 intrinsics, 3.1GHz      |
 | Intel E5-2687W (SNB)      | 8-way             | 25.6      | 20 MB  [^2] | 14.27    | 10.25    | g++     4.8, ALT = 3, PREFETCH = 3584, AVX256 intrinsics, 3.1GHz      |
 | Intel E3-1270v2 (IVB)     | 8-way             | 25.6      | 8 MB   [^2] | 13.40    | 11.05    | clang++ 3.6, ALT = 3, PREFETCH = 3072, AVX256 intrinsics, 1.6GHz      |
