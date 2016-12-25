@@ -47,7 +47,7 @@ Best results measured in SP flops/clock by the formula:
 | Intel E3-1270v2 (IVB)     | 8-way             | 25.6      | 8 MB   [^2] | 14.01    | 11.22    | g++     4.8, ALT = 3, PREFETCH = 3072, AVX256 intrinsics, 1.6GHz      |
 | Intel i7-4770 (HSW)       | 8-way             | 25.6      | 8 MB   [^2] | 22.72    | 11.65    | g++     5.1, ALT = 3, PREFETCH = 2560, AVX256+FMA3 intrinsics, 3.9GHz |
 | RK3368 (Cortex-A53)       | 2-way             | 6.4       | 512 KB [^3] | 3.12     | 1.39     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.51GHz     |
-| MT8163A (Cortex-A53)      | 2-way             | 6.4       | 512 KB      | 3.04     | 1.66     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz      |
+| MT8163A (Cortex-A53)      | 2-way             | 6.4       | 512 KB      | 3.09     | 1.65     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz      |
 
 [^1]: Prefetch applies only to 512x512 and is tuned for the given core clock; 64x64 is not prefetched.  
 [^2]: The entirety of 512x512 matrices fit in L3, which runs in the clock domain of the cores on SNB & IVB, but in its own clock domain on HSW.  
