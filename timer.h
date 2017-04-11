@@ -17,7 +17,7 @@ static uint64_t timer_nsec() {
 	timespec t;
 	clock_gettime(clockid, &t);
 
-	return t.tv_sec * 1000000000UL + t.tv_nsec;
+	return t.tv_sec * 1000000000ULL + t.tv_nsec;
 }
 
 #elif _WIN64 != 0
