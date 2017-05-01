@@ -5,7 +5,7 @@
 #if __linux__ != 0
 #include <time.h>
 
-static uint64_t timer_nsec() {
+static uint64_t timer_ns() {
 #if defined(CLOCK_MONOTONIC_RAW)
 	const clockid_t clockid = CLOCK_MONOTONIC_RAW;
 
@@ -13,11 +13,10 @@ static uint64_t timer_nsec() {
 	const clockid_t clockid = CLOCK_MONOTONIC;
 
 #endif
-
 	timespec t;
 	clock_gettime(clockid, &t);
 
-	return t.tv_sec * 1000000000ULL + t.tv_nsec;
+	return 1000000000ULL * t.tv_sec + t.tv_nsec;
 }
 
 #elif _WIN64 != 0
@@ -31,7 +30,7 @@ static struct TimerBase {
 
 // the order of global initialisaitons is non-deterministic, do
 // not use this routine in the ctors of globally-scoped objects
-static uint64_t timer_nsec() {
+static uint64_t timer_ns() {
 	LARGE_INTEGER t;
 	QueryPerformanceCounter(&t);
 
@@ -48,7 +47,7 @@ static struct TimerBase {
 
 // the order of global initialisaitons is non-deterministic, do
 // not use this routine in the ctors of globally-scoped objects
-static uint64_t timer_nsec() {
+static uint64_t timer_ns() {
 	const uint64_t t = mach_absolute_time();
 	return t * timerBase.tb.numer / timerBase.tb.denom;
 }

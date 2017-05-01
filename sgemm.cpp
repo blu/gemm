@@ -887,14 +887,14 @@ int main(int, char**) {
 	}
 
 	const size_t rep = size_t(CAT(1e, REP_EXP));
-	const uint64_t t0 = timer_nsec();
+	const uint64_t t0 = timer_ns();
 
 	for (size_t r = 0; r < rep; ++r) {
 		asm volatile ("" : : : "memory");
 		matmul(ma, mb, mc);
 	}
 
-	const uint64_t dt = timer_nsec() - t0;
+	const uint64_t dt = timer_ns() - t0;
 
 #if PRINT_MATX != 0
 	fprint_matx(stdout, mc);
