@@ -53,5 +53,5 @@ Best results measured in SP flops/clock by the formula:
 
 [^1]: Prefetch applies only to 512x512 and is tuned for the given core clock; 64x64 is not prefetched.  
 [^2]: The entirety of 512x512 matrices fit in L3, which runs in the clock domain of the cores on SNB & IVB, but in its own clock domain on HSW.  
-[^3]: Amount of shared L2 in the 'big' cluster.
-[^4]: Compiler tuning set to cortex-a57 due to lack of native arch support by the compiler
+[^3]: Amount of shared L2 in the 'big' cluster.  
+[^4]: Compiler tuning set to cortex-a57 due to lack of native arch support by the compiler  
