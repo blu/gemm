@@ -18,6 +18,7 @@ The low-tech bash script `build_sgemm.sh` will try to build the test for a 64-bi
 	*  5 - 32-element-wide ASIMD2 (aarch64) version
 	*  6 - 2x16-element-wide ASIMD2 (aarch64) version
 	*  7 - 2x32-element-wide ASIMD2 (aarch64) version
+	*  8 - 2x16-element-wide MSA (mips) version
 * `PREFETCH` - distance, in floats, to prefetch in the innermost loop (0 for no prefetch; unused in the scalar version)
 * `MATX_SIZE` - dimension of the square matrices A, B & C
 * `REP_EXP` - exponent of the number of repetitions of the test, ie. 1eEXP
@@ -53,7 +54,7 @@ Best results measured in SP flops/clock by the formula:
 | Allwinner A64 (Cortex-A53) | 2-way             | 4.42      | 512 KB               | 3.18     | 1.38     | clang++ 3.6, ALT = 6, PREFETCH = 2560, ASIMD2 intrinsics, 1.152GHz [^4] |
 | Marvell 8040 (Cortex-A72)  | 4-way             | 12.8      | 1 MB                 | 6.52     | 2.91     | clang++ 3.5, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.3GHz [^5]   |
 | Baikal-T1 (MIPS P5600)     | 4-way             | 6.4       | 1 MB                 | 3.85     | 2.00     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^6]      |
-| Baikal-T1 (MIPS P5600)     | 4-way             | 6.4       | 1 MB                 | 3.74     | 2.09     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^6][^7]  |
+| Baikal-T1 (MIPS P5600)     | 4-way             | 6.4       | 1 MB                 | 3.74     | 2.09     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^6] [^7] |
 
 [^1]: Prefetch applies only to 512x512 and is tuned for the given core clock; 64x64 is not prefetched.  
 [^2]: The entirety of 512x512 matrices fit in LLC; LLC runs in the clock domain of the cores on SNB & IVB, but in its own clock domain on HSW.  
