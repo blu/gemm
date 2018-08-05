@@ -2,7 +2,12 @@
 #include <stdint.h>
 #include "timer.h"
 
+#if _LP64 == 1
 #define CACHELINE_SIZE 64
+#else
+#define CACHELINE_SIZE 32
+#endif
+
 #define GEMM_PAGE_SIZE 4096
 
 #if !defined(MATX_SIZE)
@@ -871,6 +876,143 @@ static void matmul(
 			reinterpret_cast< float32x4_t& >(mmc1[20]) = mmc1_20;
 			reinterpret_cast< float32x4_t& >(mmc1[24]) = mmc1_24;
 			reinterpret_cast< float32x4_t& >(mmc1[28]) = mmc1_28;
+		}
+	}
+}
+
+#elif ALT == 8
+#include <msa.h>
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// sgemm kernel window of 2x16
+
+static void matmul(
+	const float (&ma)[MATX_SIZE][MATX_SIZE],
+	const float (&mb)[MATX_SIZE][MATX_SIZE],
+	float (&mc)[MATX_SIZE][MATX_SIZE]) {
+
+	for (size_t j = 0; j < MATX_SIZE; j += 2) {
+		for (size_t k = 0; k < MATX_SIZE; k += 16) {
+
+			v4f32 mmc0_0  = reinterpret_cast< const v4f32& >(mc[j + 0][k +  0]);
+			v4f32 mmc0_4  = reinterpret_cast< const v4f32& >(mc[j + 0][k +  4]);
+			v4f32 mmc0_8  = reinterpret_cast< const v4f32& >(mc[j + 0][k +  8]);
+			v4f32 mmc0_12 = reinterpret_cast< const v4f32& >(mc[j + 0][k + 12]);
+
+			v4f32 mmc1_0  = reinterpret_cast< const v4f32& >(mc[j + 1][k +  0]);
+			v4f32 mmc1_4  = reinterpret_cast< const v4f32& >(mc[j + 1][k +  4]);
+			v4f32 mmc1_8  = reinterpret_cast< const v4f32& >(mc[j + 1][k +  8]);
+			v4f32 mmc1_12 = reinterpret_cast< const v4f32& >(mc[j + 1][k + 12]);
+
+			for (size_t i = 0; i < MATX_SIZE; i += 4) { // unroll by 4 to utilize splat instructions -- we have enough regs to afford it
+				const v4f32 ma0_i = reinterpret_cast< const v4f32& >(ma[j + 0][i]);
+				const v4f32 ma1_i = reinterpret_cast< const v4f32& >(ma[j + 1][i]);
+
+#if PREFETCH != 0
+				// 16 * sizeof(fp32) = 2^6 bytes = 1 * 64-byte cachelines = 2 * 32-byte cachelines (TODO cacheline-aware prefetch helper)
+				__builtin_prefetch(((const int8_t*) &mb[i + 0][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 0][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+
+				__builtin_prefetch(((const int8_t*) &mb[i + 1][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 1][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+
+				__builtin_prefetch(((const int8_t*) &mb[i + 2][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 2][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+
+				__builtin_prefetch(((const int8_t*) &mb[i + 3][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				__builtin_prefetch(((const int8_t*) &mb[i + 3][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+
+#endif
+				const v4f32 mmbi0_0  = reinterpret_cast< const v4f32& >(mb[i + 0][k +  0]);
+				const v4f32 mmbi0_4  = reinterpret_cast< const v4f32& >(mb[i + 0][k +  4]);
+				const v4f32 mmbi0_8  = reinterpret_cast< const v4f32& >(mb[i + 0][k +  8]);
+				const v4f32 mmbi0_12 = reinterpret_cast< const v4f32& >(mb[i + 0][k + 12]);
+
+				const v4f32 mmbi1_0  = reinterpret_cast< const v4f32& >(mb[i + 1][k +  0]);
+				const v4f32 mmbi1_4  = reinterpret_cast< const v4f32& >(mb[i + 1][k +  4]);
+				const v4f32 mmbi1_8  = reinterpret_cast< const v4f32& >(mb[i + 1][k +  8]);
+				const v4f32 mmbi1_12 = reinterpret_cast< const v4f32& >(mb[i + 1][k + 12]);
+
+				const v4f32 mmbi2_0  = reinterpret_cast< const v4f32& >(mb[i + 2][k +  0]);
+				const v4f32 mmbi2_4  = reinterpret_cast< const v4f32& >(mb[i + 2][k +  4]);
+				const v4f32 mmbi2_8  = reinterpret_cast< const v4f32& >(mb[i + 2][k +  8]);
+				const v4f32 mmbi2_12 = reinterpret_cast< const v4f32& >(mb[i + 2][k + 12]);
+
+				const v4f32 mmbi3_0  = reinterpret_cast< const v4f32& >(mb[i + 3][k +  0]);
+				const v4f32 mmbi3_4  = reinterpret_cast< const v4f32& >(mb[i + 3][k +  4]);
+				const v4f32 mmbi3_8  = reinterpret_cast< const v4f32& >(mb[i + 3][k +  8]);
+				const v4f32 mmbi3_12 = reinterpret_cast< const v4f32& >(mb[i + 3][k + 12]);
+
+				const v4i32& ima0_ji0 = __msa_splati_w(reinterpret_cast< const v4i32& >(ma0_i), 0);
+				const v4i32& ima1_ji0 = __msa_splati_w(reinterpret_cast< const v4i32& >(ma1_i), 0);
+				const v4f32 ma0_ji0 = reinterpret_cast< const v4f32& >(ima0_ji0);
+				const v4f32 ma1_ji0 = reinterpret_cast< const v4f32& >(ima1_ji0);
+
+				mmc0_0  += ma0_ji0 * mmbi0_0;
+				mmc0_4  += ma0_ji0 * mmbi0_4;
+				mmc0_8  += ma0_ji0 * mmbi0_8;
+				mmc0_12 += ma0_ji0 * mmbi0_12;
+
+				mmc1_0  += ma1_ji0 * mmbi0_0;
+				mmc1_4  += ma1_ji0 * mmbi0_4;
+				mmc1_8  += ma1_ji0 * mmbi0_8;
+				mmc1_12 += ma1_ji0 * mmbi0_12;
+
+				const v4i32& ima0_ji1 = __msa_splati_w(reinterpret_cast< const v4i32& >(ma0_i), 1);
+				const v4i32& ima1_ji1 = __msa_splati_w(reinterpret_cast< const v4i32& >(ma1_i), 1);
+				const v4f32 ma0_ji1 = reinterpret_cast< const v4f32& >(ima0_ji1);
+				const v4f32 ma1_ji1 = reinterpret_cast< const v4f32& >(ima1_ji1);
+
+				mmc0_0  += ma0_ji1 * mmbi1_0;
+				mmc0_4  += ma0_ji1 * mmbi1_4;
+				mmc0_8  += ma0_ji1 * mmbi1_8;
+				mmc0_12 += ma0_ji1 * mmbi1_12;
+
+				mmc1_0  += ma1_ji1 * mmbi1_0;
+				mmc1_4  += ma1_ji1 * mmbi1_4;
+				mmc1_8  += ma1_ji1 * mmbi1_8;
+				mmc1_12 += ma1_ji1 * mmbi1_12;
+
+				const v4i32& ima0_ji2 = __msa_splati_w(reinterpret_cast< const v4i32& >(ma0_i), 2);
+				const v4i32& ima1_ji2 = __msa_splati_w(reinterpret_cast< const v4i32& >(ma1_i), 2);
+				const v4f32 ma0_ji2 = reinterpret_cast< const v4f32& >(ima0_ji2);
+				const v4f32 ma1_ji2 = reinterpret_cast< const v4f32& >(ima1_ji2);
+
+				mmc0_0  += ma0_ji2 * mmbi2_0;
+				mmc0_4  += ma0_ji2 * mmbi2_4;
+				mmc0_8  += ma0_ji2 * mmbi2_8;
+				mmc0_12 += ma0_ji2 * mmbi2_12;
+
+				mmc1_0  += ma1_ji2 * mmbi2_0;
+				mmc1_4  += ma1_ji2 * mmbi2_4;
+				mmc1_8  += ma1_ji2 * mmbi2_8;
+				mmc1_12 += ma1_ji2 * mmbi2_12;
+
+				const v4i32& ima0_ji3 = __msa_splati_w(reinterpret_cast< const v4i32& >(ma0_i), 3);
+				const v4i32& ima1_ji3 = __msa_splati_w(reinterpret_cast< const v4i32& >(ma1_i), 3);
+				const v4f32 ma0_ji3 = reinterpret_cast< const v4f32& >(ima0_ji3);
+				const v4f32 ma1_ji3 = reinterpret_cast< const v4f32& >(ima1_ji3);
+
+				mmc0_0  += ma0_ji3 * mmbi3_0;
+				mmc0_4  += ma0_ji3 * mmbi3_4;
+				mmc0_8  += ma0_ji3 * mmbi3_8;
+				mmc0_12 += ma0_ji3 * mmbi3_12;
+
+				mmc1_0  += ma1_ji3 * mmbi3_0;
+				mmc1_4  += ma1_ji3 * mmbi3_4;
+				mmc1_8  += ma1_ji3 * mmbi3_8;
+				mmc1_12 += ma1_ji3 * mmbi3_12;
+			}
+
+			reinterpret_cast< v4f32& >(mc[j + 0][k +  0]) = mmc0_0;
+			reinterpret_cast< v4f32& >(mc[j + 0][k +  4]) = mmc0_4;
+			reinterpret_cast< v4f32& >(mc[j + 0][k +  8]) = mmc0_8;
+			reinterpret_cast< v4f32& >(mc[j + 0][k + 12]) = mmc0_12;
+
+			reinterpret_cast< v4f32& >(mc[j + 1][k +  0]) = mmc1_0;
+			reinterpret_cast< v4f32& >(mc[j + 1][k +  4]) = mmc1_4;
+			reinterpret_cast< v4f32& >(mc[j + 1][k +  8]) = mmc1_8;
+			reinterpret_cast< v4f32& >(mc[j + 1][k + 12]) = mmc1_12;
 		}
 	}
 }

@@ -52,9 +52,13 @@ Best results measured in SP flops/clock by the formula:
 | MT8163A (Cortex-A53)       | 2-way             | 6.4       | 512 KB               | 3.09     | 1.65     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz        |
 | Allwinner A64 (Cortex-A53) | 2-way             | 4.42      | 512 KB               | 3.18     | 1.38     | clang++ 3.6, ALT = 6, PREFETCH = 2560, ASIMD2 intrinsics, 1.152GHz [^4] |
 | Marvell 8040 (Cortex-A72)  | 4-way             | 12.8      | 1 MB                 | 6.52     | 2.91     | clang++ 3.5, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.3GHz [^5]   |
+| Baikal-T1 (MIPS P5600)     | 4-way             | 6.4       | 1 MB                 | 3.85     | 2.00     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^6]      |
+| Baikal-T1 (MIPS P5600)     | 4-way             | 6.4       | 1 MB                 | 3.74     | 2.09     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^6][^7]  |
 
 [^1]: Prefetch applies only to 512x512 and is tuned for the given core clock; 64x64 is not prefetched.  
 [^2]: The entirety of 512x512 matrices fit in LLC; LLC runs in the clock domain of the cores on SNB & IVB, but in its own clock domain on HSW.  
 [^3]: Amount of shared L2 in the 'big' cluster.  
 [^4]: Small dataset (64x64) uses ALT=7, big dataset (512x512) uses ALT=6.  
 [^5]: Compiler tuning set to non-native cortex-a57 for better performance.  
+[^6]: Large variance in the 512x512 times -- best result listed.  
+[^7]: Non-native compiler tuning -mtune=mips32r5.  

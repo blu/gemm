@@ -86,6 +86,17 @@ elif [[ $HOSTTYPE == "powerpc64" || $HOSTTYPE == "ppc64" ]]; then
 		-maltivec
 		-mvrsave
 	)
+
+elif [[ $HOSTTYPE == "mipsel" ]]; then
+
+	CFLAGS+=(
+		-march=mips32r5
+		-mtune=p5600
+		-mfp64
+		-mhard-float
+		-mmadd4
+		-mmsa
+	)
 fi
 
 BUILD_CMD="-o sgemm "${CFLAGS[@]}" sgemm.cpp "${LFLAGS[@]}" "${@}
