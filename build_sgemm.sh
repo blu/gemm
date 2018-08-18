@@ -45,6 +45,7 @@ UNAME_MACHINE=`uname -m`
 if [[ $UNAME_MACHINE == "aarch64" ]]; then
 
 	CFLAGS+=(
+		-DCACHELINE_SIZE=64
 		-march=armv8-a
 	)
 
@@ -70,9 +71,18 @@ if [[ $UNAME_MACHINE == "aarch64" ]]; then
 		)
 	fi
 
-elif [[ $HOSTTYPE == "x86_64" || $HOSTTYPE == "i686" ]]; then
+elif [[ $HOSTTYPE == "i686" ]]; then
 
 	CFLAGS+=(
+		-DCACHELINE_SIZE=32
+		-march=native
+		-mtune=native
+	)
+
+elif [[ $HOSTTYPE == "x86_64" ]]; then
+
+	CFLAGS+=(
+		-DCACHELINE_SIZE=64
 		-march=native
 		-mtune=native
 	)
@@ -80,6 +90,7 @@ elif [[ $HOSTTYPE == "x86_64" || $HOSTTYPE == "i686" ]]; then
 elif [[ $HOSTTYPE == "powerpc64" || $HOSTTYPE == "ppc64" ]]; then
 
 	CFLAGS+=(
+		-DCACHELINE_SIZE=64
 		-mpowerpc64
 		-mcpu=powerpc64
 		-mtune=power6
@@ -90,6 +101,7 @@ elif [[ $HOSTTYPE == "powerpc64" || $HOSTTYPE == "ppc64" ]]; then
 elif [[ $HOSTTYPE == "mipsel" ]]; then
 
 	CFLAGS+=(
+		-DCACHELINE_SIZE=32
 		-march=mips32r5
 		-mtune=p5600
 		-mfp64

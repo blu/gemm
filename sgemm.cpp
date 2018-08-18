@@ -2,13 +2,7 @@
 #include <stdint.h>
 #include "timer.h"
 
-#if _LP64 == 1
-#define CACHELINE_SIZE 64
-#else
-#define CACHELINE_SIZE 32
-#endif
-
-#define GEMM_PAGE_SIZE 4096
+#define VM_PAGE_SIZE 4096
 
 #if !defined(MATX_SIZE)
 #define MATX_SIZE 512
@@ -21,9 +15,9 @@
 #define CATENATE(x, y) x##y
 #define CAT(x, y) CATENATE(x, y)
 
-float ma[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(GEMM_PAGE_SIZE)));
-float mb[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(GEMM_PAGE_SIZE)));
-float mc[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(GEMM_PAGE_SIZE)));
+float ma[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(VM_PAGE_SIZE)));
+float mb[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(VM_PAGE_SIZE)));
+float mc[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(VM_PAGE_SIZE)));
 
 static void fprint_matx(FILE* const out, const float (&mat)[MATX_SIZE][MATX_SIZE]) {
 	for (size_t i = 0; i < sizeof(mat) / sizeof(mat[0]); ++i) {
@@ -35,10 +29,15 @@ static void fprint_matx(FILE* const out, const float (&mat)[MATX_SIZE][MATX_SIZE
 }
 
 #if PREFETCH != 0
+#if !defined(CACHELINE_SIZE)
+#error unknown CACHELINE_SIZE
+#endif
+
 enum {
 	prefetch_ro = 0,
 	prefetch_rw = 1,
 };
+
 enum {
 	prefetch_nt = 0,
 	prefetch_t1 = 1,
@@ -46,8 +45,54 @@ enum {
 	prefetch_t3 = 3
 };
 
-#endif
+template < bool >
+struct compile_assert;
 
+template <>
+struct compile_assert< true > {};
+
+// prefetch a continuous sequence of cachelines, containing the specified address range
+template <
+	int MODE = prefetch_ro,   // prefetch mode; one of { ro, rw }
+	int LEVEL = prefetch_t3 > // prefetch termporal locality; one of { nt (non-temporal), t1, t2, t3 (highest locality) }
+__attribute__ ((always_inline)) void prefetchRange(
+	const void* const start, // start of address range
+	const size_t length) {   // length of range in bytes; zero length is not prefetched
+
+	const compile_assert< 0 == (CACHELINE_SIZE & CACHELINE_SIZE - 1) > assert_cacheline_power_of_two;
+
+	if (0 == length)
+		return;
+
+	const int8_t* const byteAddr = reinterpret_cast< const int8_t* >(start);
+	const size_t begin = size_t(byteAddr) / CACHELINE_SIZE;
+	const size_t end = size_t(byteAddr + length - 1) / CACHELINE_SIZE;
+
+	for (size_t i = 0; i <= end - begin; ++i)
+		__builtin_prefetch(byteAddr + i * CACHELINE_SIZE, MODE, LEVEL);
+}
+
+// prefetch a continuous sequence of cachelines
+template <
+	size_t LENGTH,            // length of range in bytes; zero length is not prefetched
+	int MODE = prefetch_ro,   // prefetch mode; one of { ro, rw }
+	int LEVEL = prefetch_t3 > // prefetch termporal locality; one of { nt (non-temporal), t1, t2, t3 (highest locality) }
+__attribute__ ((always_inline)) void prefetchRangeMultiple(
+	const void* const start) { // start of address range
+
+	const compile_assert< 0 == (CACHELINE_SIZE & CACHELINE_SIZE - 1) > assert_cacheline_power_of_two;
+	const compile_assert< 0 == LENGTH % CACHELINE_SIZE > assert_length_multiple_of_cacheline_size;
+
+	if (0 == LENGTH)
+		return;
+
+	const int8_t* const byteAddr = reinterpret_cast< const int8_t* >(start);
+
+	for (size_t i = 0; i < LENGTH / CACHELINE_SIZE; ++i)
+		__builtin_prefetch(byteAddr + i * CACHELINE_SIZE, MODE, LEVEL);
+}
+
+#endif
 #if ALT == -1
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // sgemm scalar kernel
@@ -103,7 +148,7 @@ static void matmul(
 
 #if PREFETCH != 0
 				// 16 * sizeof(fp32) = 2^6 bytes = 1 * 64-byte cachelines
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				prefetchRangeMultiple< 64 >(&mb[i][k + PREFETCH]);
 
 #endif
 				const float mmb[16] = {
@@ -196,7 +241,7 @@ static void matmul(
 
 #if PREFETCH != 0
 				// 16 * sizeof(fp32) = 2^6 bytes = 1 * 64-byte cachelines
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				prefetchRangeMultiple< 64 >(&mb[i][k + PREFETCH]);
 
 #endif
 				const __m128 mmb0  = _mm_load_ps(&mb[i][k +  0]);
@@ -258,10 +303,7 @@ static void matmul(
 
 #if PREFETCH != 0
 				// 64 * sizeof(fp32) = 2^8 bytes = 4 * 64-byte cachelines
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 2 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 3 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				prefetchRangeMultiple< 256 >(&mb[i][k + PREFETCH]);
 
 #endif
 				const __m256 mmb0  = _mm256_load_ps(&mb[i][k +  0]);
@@ -325,8 +367,7 @@ static void matmul(
 
 #if PREFETCH != 0
 				// 32 * sizeof(fp32) = 2^7 bytes = 2 * 64-byte cachelines
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				prefetchRangeMultiple< 128 >(&mb[i][k + PREFETCH]);
 
 #endif
 				const __m256 mmb0  = _mm256_load_ps(&mb[i][k +  0]);
@@ -385,10 +426,10 @@ static void matmul(
 
 #if PREFETCH != 0
 				// 16 * sizeof(fp32) = 2^6 bytes = 1 * 64-byte cachelines
-				__builtin_prefetch(((const int8_t*) &mb[i + 0][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 1][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 2][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 3][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				prefetchRangeMultiple< 64 >(&mb[i + 0][k + PREFETCH]);
+				prefetchRangeMultiple< 64 >(&mb[i + 1][k + PREFETCH]);
+				prefetchRangeMultiple< 64 >(&mb[i + 2][k + PREFETCH]);
+				prefetchRangeMultiple< 64 >(&mb[i + 3][k + PREFETCH]);
 
 #endif
 				const float32x4_t mmb0_0  = reinterpret_cast< const float32x4_t& >(mb[i + 0][k +  0]);
@@ -469,14 +510,10 @@ static void matmul(
 
 #if PREFETCH != 0
 				// 32 * sizeof(fp32) = 2^7 bytes = 2 * 64-byte cachelines
-				__builtin_prefetch(((const int8_t*) &mb[i + 0][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 0][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 1][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 1][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 2][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 2][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 3][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 3][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				prefetchRangeMultiple< 128 >(&mb[i + 0][k + PREFETCH]);
+				prefetchRangeMultiple< 128 >(&mb[i + 1][k + PREFETCH]);
+				prefetchRangeMultiple< 128 >(&mb[i + 2][k + PREFETCH]);
+				prefetchRangeMultiple< 128 >(&mb[i + 3][k + PREFETCH]);
 
 #endif
 				const float32x4_t mmb0_0  = reinterpret_cast< const float32x4_t& >(mb[i + 0][k +  0]);
@@ -603,10 +640,10 @@ static void matmul(
 
 #if PREFETCH != 0
 				// 16 * sizeof(fp32) = 2^6 bytes = 1 * 64-byte cachelines
-				__builtin_prefetch(((const int8_t*) &mb[i + 0][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 1][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 2][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 3][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				prefetchRangeMultiple< 64 >(&mb[i + 0][k + PREFETCH]);
+				prefetchRangeMultiple< 64 >(&mb[i + 1][k + PREFETCH]);
+				prefetchRangeMultiple< 64 >(&mb[i + 2][k + PREFETCH]);
+				prefetchRangeMultiple< 64 >(&mb[i + 3][k + PREFETCH]);
 
 #endif
 				const float32x4_t mmb0_0  = reinterpret_cast< const float32x4_t& >(mb[i + 0][k +  0]);
@@ -726,14 +763,10 @@ static void matmul(
 
 #if PREFETCH != 0
 				// 32 * sizeof(fp32) = 2^7 bytes = 2 * 64-byte cachelines
-				__builtin_prefetch(((const int8_t*) &mb[i + 0][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 0][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 1][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 1][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 2][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 2][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 3][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 3][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				prefetchRangeMultiple< 128 >(&mb[i + 0][k + PREFETCH]);
+				prefetchRangeMultiple< 128 >(&mb[i + 1][k + PREFETCH]);
+				prefetchRangeMultiple< 128 >(&mb[i + 2][k + PREFETCH]);
+				prefetchRangeMultiple< 128 >(&mb[i + 3][k + PREFETCH]);
 
 #endif
 				const float32x4_t mmb0_0  = reinterpret_cast< const float32x4_t& >(mb[i + 0][k +  0]);
@@ -909,18 +942,11 @@ static void matmul(
 				const v4f32 ma1_i = reinterpret_cast< const v4f32& >(ma[j + 1][i]);
 
 #if PREFETCH != 0
-				// 16 * sizeof(fp32) = 2^6 bytes = 1 * 64-byte cachelines = 2 * 32-byte cachelines (TODO cacheline-aware prefetch helper)
-				__builtin_prefetch(((const int8_t*) &mb[i + 0][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 0][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-
-				__builtin_prefetch(((const int8_t*) &mb[i + 1][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 1][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-
-				__builtin_prefetch(((const int8_t*) &mb[i + 2][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 2][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-
-				__builtin_prefetch(((const int8_t*) &mb[i + 3][k + PREFETCH]) + 0 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
-				__builtin_prefetch(((const int8_t*) &mb[i + 3][k + PREFETCH]) + 1 * CACHELINE_SIZE, prefetch_ro, prefetch_t3);
+				// 16 * sizeof(fp32) = 2^6 bytes = 1 * 64-byte cachelines = 2 * 32-byte cachelines
+				prefetchRangeMultiple< 64 >(&mb[i + 0][k + PREFETCH]);
+				prefetchRangeMultiple< 64 >(&mb[i + 1][k + PREFETCH]);
+				prefetchRangeMultiple< 64 >(&mb[i + 2][k + PREFETCH]);
+				prefetchRangeMultiple< 64 >(&mb[i + 3][k + PREFETCH]);
 
 #endif
 				const v4f32 mmbi0_0  = reinterpret_cast< const v4f32& >(mb[i + 0][k +  0]);
