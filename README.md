@@ -53,7 +53,9 @@ Best results measured in SP flops/clock by the formula:
 | Allwinner A64 (Cortex-A53) | 2-way             | 4.42      | 512 KB               | 3.18     | 1.38     | clang++ 3.6, ALT = 6, PREFETCH = 2560, ASIMD2 intrinsics, 1.152GHz [^4] |
 | MT8163A (Cortex-A53)       | 2-way             | 6.4       | 512 KB               | 3.09     | 1.65     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz        |
 | MT8173C (Cortex-A53) *A32* | 2-way             | 6.4       | 512 KB               | 1.62     | 1.01     | clang++ 6.0, ALT = 6, PREFETCH = 2560, ASIMD intrinsics, 1.7GHz [^5]    |
+| MT8173C (Cortex-A53)       | 2-way             | 6.4       | 512 KB               | 2.68     | 1.44     | clang++ 6.0, ALT = 6, PREFETCH = 2560, ASIMD2 intrinsics, 1.7GHz [^4]   |
 | MT8173C (Cortex-A72) *A32* | 4-way             | 6.4       | 1 MB                 | 3.23     | 1.81     | clang++ 6.0, ALT = 7, PREFETCH = 2560, ASIMD intrinsics, 2.1GHz [^5]    |
+| MT8173C (Cortex-A72)       | 4-way             | 6.4       | 1 MB                 | 6.82     | 2.30     | clang++ 6.0, ALT = 7, PREFETCH = 2560, ASIMD2 intrinsics, 2.1GHz [^6]   |
 | Marvell 8040 (Cortex-A72)  | 4-way             | 12.8      | 1 MB                 | 6.52     | 2.91     | clang++ 3.5, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.3GHz [^6]   |
 | Baikal-T1 (MIPS P5600)     | 4-way             | 6.4       | 1 MB                 | 3.85     | 2.00     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^7]      |
 | Baikal-T1 (MIPS P5600)     | 4-way             | 6.4       | 1 MB                 | 3.74     | 2.09     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^7] [^8] |
