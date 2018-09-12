@@ -2,6 +2,7 @@
 
 CC=clang++-3.6
 CFLAGS=(
+	-std=c++11
 	-O3
 	-fstrict-aliasing
 	-fno-rtti
