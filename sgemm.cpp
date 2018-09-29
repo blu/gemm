@@ -49,7 +49,9 @@ template < bool >
 struct compile_assert;
 
 template <>
-struct compile_assert< true > {};
+struct compile_assert< true > {
+	compile_assert() {}
+};
 
 // prefetch a continuous sequence of cachelines, containing the specified address range
 template <
