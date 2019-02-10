@@ -10,6 +10,7 @@
 // 5. array-style vector-lane accessors
 //
 // Test succeeds and codegen quality matches basic expectations for -DMATX4 on
+//   clang 5.0 on armv8
 //   g++ 5.4.0 on armv8
 //   clang 7.0.0 on armv7 (-mfloat-abi=hard)
 //   g++ 7.3.0 on armv7 (-mfloat-abi=hard)
