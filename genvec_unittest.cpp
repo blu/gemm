@@ -23,8 +23,6 @@
 
 typedef __attribute__ ((vector_size(4 * sizeof(float)))) float float4;
 
-#define VECTOR_SIZE (sizeof(float4) / sizeof(float))
-
 __attribute__ ((always_inline)) inline void foo(
 	size_t globalIdx,
 	size_t globalIdy,
@@ -96,16 +94,19 @@ __attribute__ ((aligned(16))) float b[] = {
 
 __attribute__ ((aligned(16))) float c[matxDim * matxDim];
 
+const size_t vectorDim = sizeof(float4) / sizeof(float);
+typedef float4 vector_t;
+
 int main(int, char**) {
 	asm volatile ("" ::: "memory"); // lose compiler's tracking of the content of a and b
 
 	for (size_t i = 0; i < matxDim; ++i) {
-		for (size_t j = 0; j < matxDim / VECTOR_SIZE; ++j) {
+		for (size_t j = 0; j < matxDim / vectorDim; ++j) {
 
 			foo(j, i, matxDim,
-				reinterpret_cast<const float4*>(a),
-				reinterpret_cast<const float4*>(b),
-				reinterpret_cast<float4*>(c));
+				reinterpret_cast<const vector_t*>(a),
+				reinterpret_cast<const vector_t*>(b),
+				reinterpret_cast<vector_t*>(c));
 		}
 	}
 
