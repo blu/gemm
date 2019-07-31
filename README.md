@@ -50,6 +50,7 @@ Best results measured in SP flops/clock by the formula:
 | Intel i7-4770 (HSW)        | 8-way             | 25.6      | 8 MB            [^2] | 22.72    | 11.65    | g++     5.1, ALT = 3, PREFETCH = 2560, AVX256+FMA3 intrinsics, 3.9GHz       |
 | AMD Ryzen 1700X (Zen)      | 4-way             | 37.5      | 16 MB           [^2] | 14.15    | 10.22    | clang++ 3.8, ALT = 3, PREFETCH = 3072, AVX256 intrinsics, 3.4GHz            |
 | RK3368 (Cortex-A53)        | 2-way             | 6.4       | 512 KB          [^3] | 3.12     | 1.39     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.51GHz           |
+| RK3399 (Cortex-A72)        | 4-way             | 12.8      | 1 MB                 | 6.81     | 2.01     | clang++ 7.0, ALT = 7, PREFETCH = 2560, ASIMD2 intrinsics, 1.8GHz [^6]       |
 | Allwinner A64 (Cortex-A53) | 2-way             | 4.42      | 512 KB               | 3.18     | 1.38     | clang++ 3.6, ALT = 6, PREFETCH = 2560, ASIMD2 intrinsics, 1.152GHz [^4]     |
 | MT8163A (Cortex-A53)       | 2-way             | 6.4       | 512 KB               | 3.09     | 1.65     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.5GHz            |
 | MT8173C (Cortex-A53) *A32* | 2-way             | 12.8      | 512 KB               | 1.62     | 1.01     | clang++ 6.0, ALT = 6, PREFETCH = 2560, ASIMD intrinsics, 1.7GHz [^5]        |
