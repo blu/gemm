@@ -439,40 +439,40 @@ static void matmul(
 				const float32x4_t mmb0_8  = reinterpret_cast< const float32x4_t& >(mb[i + 0][k +  8]);
 				const float32x4_t mmb0_12 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 12]);
 
-				mmc0  = vmlaq_n_f32(mmc0,  mmb0_0,  vgetq_lane_f32(mma_ji, 0));
-				mmc4  = vmlaq_n_f32(mmc4,  mmb0_4,  vgetq_lane_f32(mma_ji, 0));
-				mmc8  = vmlaq_n_f32(mmc8,  mmb0_8,  vgetq_lane_f32(mma_ji, 0));
-				mmc12 = vmlaq_n_f32(mmc12, mmb0_12, vgetq_lane_f32(mma_ji, 0));
+				mmc0  = vmlaq_laneq_f32(mmc0,  mmb0_0,  mma_ji, 0);
+				mmc4  = vmlaq_laneq_f32(mmc4,  mmb0_4,  mma_ji, 0);
+				mmc8  = vmlaq_laneq_f32(mmc8,  mmb0_8,  mma_ji, 0);
+				mmc12 = vmlaq_laneq_f32(mmc12, mmb0_12, mma_ji, 0);
 
 				const float32x4_t mmb1_0  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  0]);
 				const float32x4_t mmb1_4  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  4]);
 				const float32x4_t mmb1_8  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  8]);
 				const float32x4_t mmb1_12 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 12]);
 
-				mmc0  = vmlaq_n_f32(mmc0,  mmb1_0,  vgetq_lane_f32(mma_ji, 1));
-				mmc4  = vmlaq_n_f32(mmc4,  mmb1_4,  vgetq_lane_f32(mma_ji, 1));
-				mmc8  = vmlaq_n_f32(mmc8,  mmb1_8,  vgetq_lane_f32(mma_ji, 1));
-				mmc12 = vmlaq_n_f32(mmc12, mmb1_12, vgetq_lane_f32(mma_ji, 1));
+				mmc0  = vmlaq_laneq_f32(mmc0,  mmb1_0,  mma_ji, 1);
+				mmc4  = vmlaq_laneq_f32(mmc4,  mmb1_4,  mma_ji, 1);
+				mmc8  = vmlaq_laneq_f32(mmc8,  mmb1_8,  mma_ji, 1);
+				mmc12 = vmlaq_laneq_f32(mmc12, mmb1_12, mma_ji, 1);
 
 				const float32x4_t mmb2_0  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  0]);
 				const float32x4_t mmb2_4  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  4]);
 				const float32x4_t mmb2_8  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  8]);
 				const float32x4_t mmb2_12 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 12]);
 
-				mmc0  = vmlaq_n_f32(mmc0,  mmb2_0,  vgetq_lane_f32(mma_ji, 2));
-				mmc4  = vmlaq_n_f32(mmc4,  mmb2_4,  vgetq_lane_f32(mma_ji, 2));
-				mmc8  = vmlaq_n_f32(mmc8,  mmb2_8,  vgetq_lane_f32(mma_ji, 2));
-				mmc12 = vmlaq_n_f32(mmc12, mmb2_12, vgetq_lane_f32(mma_ji, 2));
+				mmc0  = vmlaq_laneq_f32(mmc0,  mmb2_0,  mma_ji, 2);
+				mmc4  = vmlaq_laneq_f32(mmc4,  mmb2_4,  mma_ji, 2);
+				mmc8  = vmlaq_laneq_f32(mmc8,  mmb2_8,  mma_ji, 2);
+				mmc12 = vmlaq_laneq_f32(mmc12, mmb2_12, mma_ji, 2);
 
 				const float32x4_t mmb3_0  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  0]);
 				const float32x4_t mmb3_4  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  4]);
 				const float32x4_t mmb3_8  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  8]);
 				const float32x4_t mmb3_12 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 12]);
 
-				mmc0  = vmlaq_n_f32(mmc0,  mmb3_0,  vgetq_lane_f32(mma_ji, 3));
-				mmc4  = vmlaq_n_f32(mmc4,  mmb3_4,  vgetq_lane_f32(mma_ji, 3));
-				mmc8  = vmlaq_n_f32(mmc8,  mmb3_8,  vgetq_lane_f32(mma_ji, 3));
-				mmc12 = vmlaq_n_f32(mmc12, mmb3_12, vgetq_lane_f32(mma_ji, 3));
+				mmc0  = vmlaq_laneq_f32(mmc0,  mmb3_0,  mma_ji, 3);
+				mmc4  = vmlaq_laneq_f32(mmc4,  mmb3_4,  mma_ji, 3);
+				mmc8  = vmlaq_laneq_f32(mmc8,  mmb3_8,  mma_ji, 3);
+				mmc12 = vmlaq_laneq_f32(mmc12, mmb3_12, mma_ji, 3);
 			}
 
 			reinterpret_cast< float32x4_t& >(mc[j][k +  0]) = mmc0;
@@ -528,15 +528,15 @@ static void matmul(
 				const float32x4_t mmb0_24 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 24]);
 				const float32x4_t mmb0_28 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 28]);
 
-				mmc0  = vmlaq_n_f32(mmc0,  mmb0_0,  vgetq_lane_f32(mma_ji, 0));
-				mmc4  = vmlaq_n_f32(mmc4,  mmb0_4,  vgetq_lane_f32(mma_ji, 0));
-				mmc8  = vmlaq_n_f32(mmc8,  mmb0_8,  vgetq_lane_f32(mma_ji, 0));
-				mmc12 = vmlaq_n_f32(mmc12, mmb0_12, vgetq_lane_f32(mma_ji, 0));
+				mmc0  = vmlaq_laneq_f32(mmc0,  mmb0_0,  mma_ji, 0);
+				mmc4  = vmlaq_laneq_f32(mmc4,  mmb0_4,  mma_ji, 0);
+				mmc8  = vmlaq_laneq_f32(mmc8,  mmb0_8,  mma_ji, 0);
+				mmc12 = vmlaq_laneq_f32(mmc12, mmb0_12, mma_ji, 0);
 
-				mmc16 = vmlaq_n_f32(mmc16, mmb0_16, vgetq_lane_f32(mma_ji, 0));
-				mmc20 = vmlaq_n_f32(mmc20, mmb0_20, vgetq_lane_f32(mma_ji, 0));
-				mmc24 = vmlaq_n_f32(mmc24, mmb0_24, vgetq_lane_f32(mma_ji, 0));
-				mmc28 = vmlaq_n_f32(mmc28, mmb0_28, vgetq_lane_f32(mma_ji, 0));
+				mmc16 = vmlaq_laneq_f32(mmc16, mmb0_16, mma_ji, 0);
+				mmc20 = vmlaq_laneq_f32(mmc20, mmb0_20, mma_ji, 0);
+				mmc24 = vmlaq_laneq_f32(mmc24, mmb0_24, mma_ji, 0);
+				mmc28 = vmlaq_laneq_f32(mmc28, mmb0_28, mma_ji, 0);
 
 				const float32x4_t mmb1_0  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  0]);
 				const float32x4_t mmb1_4  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  4]);
@@ -548,15 +548,15 @@ static void matmul(
 				const float32x4_t mmb1_24 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 24]);
 				const float32x4_t mmb1_28 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 28]);
 
-				mmc0  = vmlaq_n_f32(mmc0,  mmb1_0,  vgetq_lane_f32(mma_ji, 1));
-				mmc4  = vmlaq_n_f32(mmc4,  mmb1_4,  vgetq_lane_f32(mma_ji, 1));
-				mmc8  = vmlaq_n_f32(mmc8,  mmb1_8,  vgetq_lane_f32(mma_ji, 1));
-				mmc12 = vmlaq_n_f32(mmc12, mmb1_12, vgetq_lane_f32(mma_ji, 1));
+				mmc0  = vmlaq_laneq_f32(mmc0,  mmb1_0,  mma_ji, 1);
+				mmc4  = vmlaq_laneq_f32(mmc4,  mmb1_4,  mma_ji, 1);
+				mmc8  = vmlaq_laneq_f32(mmc8,  mmb1_8,  mma_ji, 1);
+				mmc12 = vmlaq_laneq_f32(mmc12, mmb1_12, mma_ji, 1);
 
-				mmc16 = vmlaq_n_f32(mmc16, mmb1_16, vgetq_lane_f32(mma_ji, 1));
-				mmc20 = vmlaq_n_f32(mmc20, mmb1_20, vgetq_lane_f32(mma_ji, 1));
-				mmc24 = vmlaq_n_f32(mmc24, mmb1_24, vgetq_lane_f32(mma_ji, 1));
-				mmc28 = vmlaq_n_f32(mmc28, mmb1_28, vgetq_lane_f32(mma_ji, 1));
+				mmc16 = vmlaq_laneq_f32(mmc16, mmb1_16, mma_ji, 1);
+				mmc20 = vmlaq_laneq_f32(mmc20, mmb1_20, mma_ji, 1);
+				mmc24 = vmlaq_laneq_f32(mmc24, mmb1_24, mma_ji, 1);
+				mmc28 = vmlaq_laneq_f32(mmc28, mmb1_28, mma_ji, 1);
 
 				const float32x4_t mmb2_0  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  0]);
 				const float32x4_t mmb2_4  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  4]);
@@ -568,15 +568,15 @@ static void matmul(
 				const float32x4_t mmb2_24 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 24]);
 				const float32x4_t mmb2_28 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 28]);
 
-				mmc0  = vmlaq_n_f32(mmc0,  mmb2_0,  vgetq_lane_f32(mma_ji, 2));
-				mmc4  = vmlaq_n_f32(mmc4,  mmb2_4,  vgetq_lane_f32(mma_ji, 2));
-				mmc8  = vmlaq_n_f32(mmc8,  mmb2_8,  vgetq_lane_f32(mma_ji, 2));
-				mmc12 = vmlaq_n_f32(mmc12, mmb2_12, vgetq_lane_f32(mma_ji, 2));
+				mmc0  = vmlaq_laneq_f32(mmc0,  mmb2_0,  mma_ji, 2);
+				mmc4  = vmlaq_laneq_f32(mmc4,  mmb2_4,  mma_ji, 2);
+				mmc8  = vmlaq_laneq_f32(mmc8,  mmb2_8,  mma_ji, 2);
+				mmc12 = vmlaq_laneq_f32(mmc12, mmb2_12, mma_ji, 2);
 
-				mmc16 = vmlaq_n_f32(mmc16, mmb2_16, vgetq_lane_f32(mma_ji, 2));
-				mmc20 = vmlaq_n_f32(mmc20, mmb2_20, vgetq_lane_f32(mma_ji, 2));
-				mmc24 = vmlaq_n_f32(mmc24, mmb2_24, vgetq_lane_f32(mma_ji, 2));
-				mmc28 = vmlaq_n_f32(mmc28, mmb2_28, vgetq_lane_f32(mma_ji, 2));
+				mmc16 = vmlaq_laneq_f32(mmc16, mmb2_16, mma_ji, 2);
+				mmc20 = vmlaq_laneq_f32(mmc20, mmb2_20, mma_ji, 2);
+				mmc24 = vmlaq_laneq_f32(mmc24, mmb2_24, mma_ji, 2);
+				mmc28 = vmlaq_laneq_f32(mmc28, mmb2_28, mma_ji, 2);
 
 				const float32x4_t mmb3_0  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  0]);
 				const float32x4_t mmb3_4  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  4]);
@@ -588,15 +588,15 @@ static void matmul(
 				const float32x4_t mmb3_24 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 24]);
 				const float32x4_t mmb3_28 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 28]);
 
-				mmc0  = vmlaq_n_f32(mmc0,  mmb3_0,  vgetq_lane_f32(mma_ji, 3));
-				mmc4  = vmlaq_n_f32(mmc4,  mmb3_4,  vgetq_lane_f32(mma_ji, 3));
-				mmc8  = vmlaq_n_f32(mmc8,  mmb3_8,  vgetq_lane_f32(mma_ji, 3));
-				mmc12 = vmlaq_n_f32(mmc12, mmb3_12, vgetq_lane_f32(mma_ji, 3));
+				mmc0  = vmlaq_laneq_f32(mmc0,  mmb3_0,  mma_ji, 3);
+				mmc4  = vmlaq_laneq_f32(mmc4,  mmb3_4,  mma_ji, 3);
+				mmc8  = vmlaq_laneq_f32(mmc8,  mmb3_8,  mma_ji, 3);
+				mmc12 = vmlaq_laneq_f32(mmc12, mmb3_12, mma_ji, 3);
 
-				mmc16 = vmlaq_n_f32(mmc16, mmb3_16, vgetq_lane_f32(mma_ji, 3));
-				mmc20 = vmlaq_n_f32(mmc20, mmb3_20, vgetq_lane_f32(mma_ji, 3));
-				mmc24 = vmlaq_n_f32(mmc24, mmb3_24, vgetq_lane_f32(mma_ji, 3));
-				mmc28 = vmlaq_n_f32(mmc28, mmb3_28, vgetq_lane_f32(mma_ji, 3));
+				mmc16 = vmlaq_laneq_f32(mmc16, mmb3_16, mma_ji, 3);
+				mmc20 = vmlaq_laneq_f32(mmc20, mmb3_20, mma_ji, 3);
+				mmc24 = vmlaq_laneq_f32(mmc24, mmb3_24, mma_ji, 3);
+				mmc28 = vmlaq_laneq_f32(mmc28, mmb3_28, mma_ji, 3);
 			}
 
 			reinterpret_cast< float32x4_t& >(mc[j][k +  0]) = mmc0;
@@ -653,60 +653,60 @@ static void matmul(
 				const float32x4_t mmb0_8  = reinterpret_cast< const float32x4_t& >(mb[i + 0][k +  8]);
 				const float32x4_t mmb0_12 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 12]);
 
-				mmc0_0  = vmlaq_n_f32(mmc0_0,  mmb0_0,  vgetq_lane_f32(mma0_ji, 0));
-				mmc0_4  = vmlaq_n_f32(mmc0_4,  mmb0_4,  vgetq_lane_f32(mma0_ji, 0));
-				mmc0_8  = vmlaq_n_f32(mmc0_8,  mmb0_8,  vgetq_lane_f32(mma0_ji, 0));
-				mmc0_12 = vmlaq_n_f32(mmc0_12, mmb0_12, vgetq_lane_f32(mma0_ji, 0));
+				mmc0_0  = vmlaq_laneq_f32(mmc0_0,  mmb0_0,  mma0_ji, 0);
+				mmc0_4  = vmlaq_laneq_f32(mmc0_4,  mmb0_4,  mma0_ji, 0);
+				mmc0_8  = vmlaq_laneq_f32(mmc0_8,  mmb0_8,  mma0_ji, 0);
+				mmc0_12 = vmlaq_laneq_f32(mmc0_12, mmb0_12, mma0_ji, 0);
 
-				mmc1_0  = vmlaq_n_f32(mmc1_0,  mmb0_0,  vgetq_lane_f32(mma1_ji, 0));
-				mmc1_4  = vmlaq_n_f32(mmc1_4,  mmb0_4,  vgetq_lane_f32(mma1_ji, 0));
-				mmc1_8  = vmlaq_n_f32(mmc1_8,  mmb0_8,  vgetq_lane_f32(mma1_ji, 0));
-				mmc1_12 = vmlaq_n_f32(mmc1_12, mmb0_12, vgetq_lane_f32(mma1_ji, 0));
+				mmc1_0  = vmlaq_laneq_f32(mmc1_0,  mmb0_0,  mma1_ji, 0);
+				mmc1_4  = vmlaq_laneq_f32(mmc1_4,  mmb0_4,  mma1_ji, 0);
+				mmc1_8  = vmlaq_laneq_f32(mmc1_8,  mmb0_8,  mma1_ji, 0);
+				mmc1_12 = vmlaq_laneq_f32(mmc1_12, mmb0_12, mma1_ji, 0);
 
 				const float32x4_t mmb1_0  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  0]);
 				const float32x4_t mmb1_4  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  4]);
 				const float32x4_t mmb1_8  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  8]);
 				const float32x4_t mmb1_12 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 12]);
 
-				mmc0_0  = vmlaq_n_f32(mmc0_0,  mmb1_0,  vgetq_lane_f32(mma0_ji, 1));
-				mmc0_4  = vmlaq_n_f32(mmc0_4,  mmb1_4,  vgetq_lane_f32(mma0_ji, 1));
-				mmc0_8  = vmlaq_n_f32(mmc0_8,  mmb1_8,  vgetq_lane_f32(mma0_ji, 1));
-				mmc0_12 = vmlaq_n_f32(mmc0_12, mmb1_12, vgetq_lane_f32(mma0_ji, 1));
+				mmc0_0  = vmlaq_laneq_f32(mmc0_0,  mmb1_0,  mma0_ji, 1);
+				mmc0_4  = vmlaq_laneq_f32(mmc0_4,  mmb1_4,  mma0_ji, 1);
+				mmc0_8  = vmlaq_laneq_f32(mmc0_8,  mmb1_8,  mma0_ji, 1);
+				mmc0_12 = vmlaq_laneq_f32(mmc0_12, mmb1_12, mma0_ji, 1);
 
-				mmc1_0  = vmlaq_n_f32(mmc1_0,  mmb1_0,  vgetq_lane_f32(mma1_ji, 1));
-				mmc1_4  = vmlaq_n_f32(mmc1_4,  mmb1_4,  vgetq_lane_f32(mma1_ji, 1));
-				mmc1_8  = vmlaq_n_f32(mmc1_8,  mmb1_8,  vgetq_lane_f32(mma1_ji, 1));
-				mmc1_12 = vmlaq_n_f32(mmc1_12, mmb1_12, vgetq_lane_f32(mma1_ji, 1));
+				mmc1_0  = vmlaq_laneq_f32(mmc1_0,  mmb1_0,  mma1_ji, 1);
+				mmc1_4  = vmlaq_laneq_f32(mmc1_4,  mmb1_4,  mma1_ji, 1);
+				mmc1_8  = vmlaq_laneq_f32(mmc1_8,  mmb1_8,  mma1_ji, 1);
+				mmc1_12 = vmlaq_laneq_f32(mmc1_12, mmb1_12, mma1_ji, 1);
 
 				const float32x4_t mmb2_0  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  0]);
 				const float32x4_t mmb2_4  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  4]);
 				const float32x4_t mmb2_8  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  8]);
 				const float32x4_t mmb2_12 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 12]);
 
-				mmc0_0  = vmlaq_n_f32(mmc0_0,  mmb2_0,  vgetq_lane_f32(mma0_ji, 2));
-				mmc0_4  = vmlaq_n_f32(mmc0_4,  mmb2_4,  vgetq_lane_f32(mma0_ji, 2));
-				mmc0_8  = vmlaq_n_f32(mmc0_8,  mmb2_8,  vgetq_lane_f32(mma0_ji, 2));
-				mmc0_12 = vmlaq_n_f32(mmc0_12, mmb2_12, vgetq_lane_f32(mma0_ji, 2));
+				mmc0_0  = vmlaq_laneq_f32(mmc0_0,  mmb2_0,  mma0_ji, 2);
+				mmc0_4  = vmlaq_laneq_f32(mmc0_4,  mmb2_4,  mma0_ji, 2);
+				mmc0_8  = vmlaq_laneq_f32(mmc0_8,  mmb2_8,  mma0_ji, 2);
+				mmc0_12 = vmlaq_laneq_f32(mmc0_12, mmb2_12, mma0_ji, 2);
 
-				mmc1_0  = vmlaq_n_f32(mmc1_0,  mmb2_0,  vgetq_lane_f32(mma1_ji, 2));
-				mmc1_4  = vmlaq_n_f32(mmc1_4,  mmb2_4,  vgetq_lane_f32(mma1_ji, 2));
-				mmc1_8  = vmlaq_n_f32(mmc1_8,  mmb2_8,  vgetq_lane_f32(mma1_ji, 2));
-				mmc1_12 = vmlaq_n_f32(mmc1_12, mmb2_12, vgetq_lane_f32(mma1_ji, 2));
+				mmc1_0  = vmlaq_laneq_f32(mmc1_0,  mmb2_0,  mma1_ji, 2);
+				mmc1_4  = vmlaq_laneq_f32(mmc1_4,  mmb2_4,  mma1_ji, 2);
+				mmc1_8  = vmlaq_laneq_f32(mmc1_8,  mmb2_8,  mma1_ji, 2);
+				mmc1_12 = vmlaq_laneq_f32(mmc1_12, mmb2_12, mma1_ji, 2);
 
 				const float32x4_t mmb3_0  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  0]);
 				const float32x4_t mmb3_4  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  4]);
 				const float32x4_t mmb3_8  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  8]);
 				const float32x4_t mmb3_12 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 12]);
 
-				mmc0_0  = vmlaq_n_f32(mmc0_0,  mmb3_0,  vgetq_lane_f32(mma0_ji, 3));
-				mmc0_4  = vmlaq_n_f32(mmc0_4,  mmb3_4,  vgetq_lane_f32(mma0_ji, 3));
-				mmc0_8  = vmlaq_n_f32(mmc0_8,  mmb3_8,  vgetq_lane_f32(mma0_ji, 3));
-				mmc0_12 = vmlaq_n_f32(mmc0_12, mmb3_12, vgetq_lane_f32(mma0_ji, 3));
+				mmc0_0  = vmlaq_laneq_f32(mmc0_0,  mmb3_0,  mma0_ji, 3);
+				mmc0_4  = vmlaq_laneq_f32(mmc0_4,  mmb3_4,  mma0_ji, 3);
+				mmc0_8  = vmlaq_laneq_f32(mmc0_8,  mmb3_8,  mma0_ji, 3);
+				mmc0_12 = vmlaq_laneq_f32(mmc0_12, mmb3_12, mma0_ji, 3);
 
-				mmc1_0  = vmlaq_n_f32(mmc1_0,  mmb3_0,  vgetq_lane_f32(mma1_ji, 3));
-				mmc1_4  = vmlaq_n_f32(mmc1_4,  mmb3_4,  vgetq_lane_f32(mma1_ji, 3));
-				mmc1_8  = vmlaq_n_f32(mmc1_8,  mmb3_8,  vgetq_lane_f32(mma1_ji, 3));
-				mmc1_12 = vmlaq_n_f32(mmc1_12, mmb3_12, vgetq_lane_f32(mma1_ji, 3));
+				mmc1_0  = vmlaq_laneq_f32(mmc1_0,  mmb3_0,  mma1_ji, 3);
+				mmc1_4  = vmlaq_laneq_f32(mmc1_4,  mmb3_4,  mma1_ji, 3);
+				mmc1_8  = vmlaq_laneq_f32(mmc1_8,  mmb3_8,  mma1_ji, 3);
+				mmc1_12 = vmlaq_laneq_f32(mmc1_12, mmb3_12, mma1_ji, 3);
 			}
 
 			reinterpret_cast< float32x4_t& >(mc[j + 0][k +  0]) = mmc0_0;
@@ -781,25 +781,25 @@ static void matmul(
 				const float32x4_t mmb0_24 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 24]);
 				const float32x4_t mmb0_28 = reinterpret_cast< const float32x4_t& >(mb[i + 0][k + 28]);
 
-				mmc0_0  = vmlaq_n_f32(mmc0_0,  mmb0_0,  vgetq_lane_f32(mma0_ji, 0));
-				mmc0_4  = vmlaq_n_f32(mmc0_4,  mmb0_4,  vgetq_lane_f32(mma0_ji, 0));
-				mmc0_8  = vmlaq_n_f32(mmc0_8,  mmb0_8,  vgetq_lane_f32(mma0_ji, 0));
-				mmc0_12 = vmlaq_n_f32(mmc0_12, mmb0_12, vgetq_lane_f32(mma0_ji, 0));
+				mmc0_0  = vmlaq_laneq_f32(mmc0_0,  mmb0_0,  mma0_ji, 0);
+				mmc0_4  = vmlaq_laneq_f32(mmc0_4,  mmb0_4,  mma0_ji, 0);
+				mmc0_8  = vmlaq_laneq_f32(mmc0_8,  mmb0_8,  mma0_ji, 0);
+				mmc0_12 = vmlaq_laneq_f32(mmc0_12, mmb0_12, mma0_ji, 0);
 
-				mmc0_16 = vmlaq_n_f32(mmc0_16, mmb0_16, vgetq_lane_f32(mma0_ji, 0));
-				mmc0_20 = vmlaq_n_f32(mmc0_20, mmb0_20, vgetq_lane_f32(mma0_ji, 0));
-				mmc0_24 = vmlaq_n_f32(mmc0_24, mmb0_24, vgetq_lane_f32(mma0_ji, 0));
-				mmc0_28 = vmlaq_n_f32(mmc0_28, mmb0_28, vgetq_lane_f32(mma0_ji, 0));
+				mmc0_16 = vmlaq_laneq_f32(mmc0_16, mmb0_16, mma0_ji, 0);
+				mmc0_20 = vmlaq_laneq_f32(mmc0_20, mmb0_20, mma0_ji, 0);
+				mmc0_24 = vmlaq_laneq_f32(mmc0_24, mmb0_24, mma0_ji, 0);
+				mmc0_28 = vmlaq_laneq_f32(mmc0_28, mmb0_28, mma0_ji, 0);
 
-				mmc1_0  = vmlaq_n_f32(mmc1_0,  mmb0_0,  vgetq_lane_f32(mma1_ji, 0));
-				mmc1_4  = vmlaq_n_f32(mmc1_4,  mmb0_4,  vgetq_lane_f32(mma1_ji, 0));
-				mmc1_8  = vmlaq_n_f32(mmc1_8,  mmb0_8,  vgetq_lane_f32(mma1_ji, 0));
-				mmc1_12 = vmlaq_n_f32(mmc1_12, mmb0_12, vgetq_lane_f32(mma1_ji, 0));
+				mmc1_0  = vmlaq_laneq_f32(mmc1_0,  mmb0_0,  mma1_ji, 0);
+				mmc1_4  = vmlaq_laneq_f32(mmc1_4,  mmb0_4,  mma1_ji, 0);
+				mmc1_8  = vmlaq_laneq_f32(mmc1_8,  mmb0_8,  mma1_ji, 0);
+				mmc1_12 = vmlaq_laneq_f32(mmc1_12, mmb0_12, mma1_ji, 0);
 
-				mmc1_16 = vmlaq_n_f32(mmc1_16, mmb0_16, vgetq_lane_f32(mma1_ji, 0));
-				mmc1_20 = vmlaq_n_f32(mmc1_20, mmb0_20, vgetq_lane_f32(mma1_ji, 0));
-				mmc1_24 = vmlaq_n_f32(mmc1_24, mmb0_24, vgetq_lane_f32(mma1_ji, 0));
-				mmc1_28 = vmlaq_n_f32(mmc1_28, mmb0_28, vgetq_lane_f32(mma1_ji, 0));
+				mmc1_16 = vmlaq_laneq_f32(mmc1_16, mmb0_16, mma1_ji, 0);
+				mmc1_20 = vmlaq_laneq_f32(mmc1_20, mmb0_20, mma1_ji, 0);
+				mmc1_24 = vmlaq_laneq_f32(mmc1_24, mmb0_24, mma1_ji, 0);
+				mmc1_28 = vmlaq_laneq_f32(mmc1_28, mmb0_28, mma1_ji, 0);
 
 				const float32x4_t mmb1_0  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  0]);
 				const float32x4_t mmb1_4  = reinterpret_cast< const float32x4_t& >(mb[i + 1][k +  4]);
@@ -811,25 +811,25 @@ static void matmul(
 				const float32x4_t mmb1_24 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 24]);
 				const float32x4_t mmb1_28 = reinterpret_cast< const float32x4_t& >(mb[i + 1][k + 28]);
 
-				mmc0_0  = vmlaq_n_f32(mmc0_0,  mmb1_0,  vgetq_lane_f32(mma0_ji, 1));
-				mmc0_4  = vmlaq_n_f32(mmc0_4,  mmb1_4,  vgetq_lane_f32(mma0_ji, 1));
-				mmc0_8  = vmlaq_n_f32(mmc0_8,  mmb1_8,  vgetq_lane_f32(mma0_ji, 1));
-				mmc0_12 = vmlaq_n_f32(mmc0_12, mmb1_12, vgetq_lane_f32(mma0_ji, 1));
+				mmc0_0  = vmlaq_laneq_f32(mmc0_0,  mmb1_0,  mma0_ji, 1);
+				mmc0_4  = vmlaq_laneq_f32(mmc0_4,  mmb1_4,  mma0_ji, 1);
+				mmc0_8  = vmlaq_laneq_f32(mmc0_8,  mmb1_8,  mma0_ji, 1);
+				mmc0_12 = vmlaq_laneq_f32(mmc0_12, mmb1_12, mma0_ji, 1);
 
-				mmc0_16 = vmlaq_n_f32(mmc0_16, mmb1_16, vgetq_lane_f32(mma0_ji, 1));
-				mmc0_20 = vmlaq_n_f32(mmc0_20, mmb1_20, vgetq_lane_f32(mma0_ji, 1));
-				mmc0_24 = vmlaq_n_f32(mmc0_24, mmb1_24, vgetq_lane_f32(mma0_ji, 1));
-				mmc0_28 = vmlaq_n_f32(mmc0_28, mmb1_28, vgetq_lane_f32(mma0_ji, 1));
+				mmc0_16 = vmlaq_laneq_f32(mmc0_16, mmb1_16, mma0_ji, 1);
+				mmc0_20 = vmlaq_laneq_f32(mmc0_20, mmb1_20, mma0_ji, 1);
+				mmc0_24 = vmlaq_laneq_f32(mmc0_24, mmb1_24, mma0_ji, 1);
+				mmc0_28 = vmlaq_laneq_f32(mmc0_28, mmb1_28, mma0_ji, 1);
 
-				mmc1_0  = vmlaq_n_f32(mmc1_0,  mmb1_0,  vgetq_lane_f32(mma1_ji, 1));
-				mmc1_4  = vmlaq_n_f32(mmc1_4,  mmb1_4,  vgetq_lane_f32(mma1_ji, 1));
-				mmc1_8  = vmlaq_n_f32(mmc1_8,  mmb1_8,  vgetq_lane_f32(mma1_ji, 1));
-				mmc1_12 = vmlaq_n_f32(mmc1_12, mmb1_12, vgetq_lane_f32(mma1_ji, 1));
+				mmc1_0  = vmlaq_laneq_f32(mmc1_0,  mmb1_0,  mma1_ji, 1);
+				mmc1_4  = vmlaq_laneq_f32(mmc1_4,  mmb1_4,  mma1_ji, 1);
+				mmc1_8  = vmlaq_laneq_f32(mmc1_8,  mmb1_8,  mma1_ji, 1);
+				mmc1_12 = vmlaq_laneq_f32(mmc1_12, mmb1_12, mma1_ji, 1);
 
-				mmc1_16 = vmlaq_n_f32(mmc1_16, mmb1_16, vgetq_lane_f32(mma1_ji, 1));
-				mmc1_20 = vmlaq_n_f32(mmc1_20, mmb1_20, vgetq_lane_f32(mma1_ji, 1));
-				mmc1_24 = vmlaq_n_f32(mmc1_24, mmb1_24, vgetq_lane_f32(mma1_ji, 1));
-				mmc1_28 = vmlaq_n_f32(mmc1_28, mmb1_28, vgetq_lane_f32(mma1_ji, 1));
+				mmc1_16 = vmlaq_laneq_f32(mmc1_16, mmb1_16, mma1_ji, 1);
+				mmc1_20 = vmlaq_laneq_f32(mmc1_20, mmb1_20, mma1_ji, 1);
+				mmc1_24 = vmlaq_laneq_f32(mmc1_24, mmb1_24, mma1_ji, 1);
+				mmc1_28 = vmlaq_laneq_f32(mmc1_28, mmb1_28, mma1_ji, 1);
 
 				const float32x4_t mmb2_0  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  0]);
 				const float32x4_t mmb2_4  = reinterpret_cast< const float32x4_t& >(mb[i + 2][k +  4]);
@@ -841,25 +841,25 @@ static void matmul(
 				const float32x4_t mmb2_24 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 24]);
 				const float32x4_t mmb2_28 = reinterpret_cast< const float32x4_t& >(mb[i + 2][k + 28]);
 
-				mmc0_0  = vmlaq_n_f32(mmc0_0,  mmb2_0,  vgetq_lane_f32(mma0_ji, 2));
-				mmc0_4  = vmlaq_n_f32(mmc0_4,  mmb2_4,  vgetq_lane_f32(mma0_ji, 2));
-				mmc0_8  = vmlaq_n_f32(mmc0_8,  mmb2_8,  vgetq_lane_f32(mma0_ji, 2));
-				mmc0_12 = vmlaq_n_f32(mmc0_12, mmb2_12, vgetq_lane_f32(mma0_ji, 2));
+				mmc0_0  = vmlaq_laneq_f32(mmc0_0,  mmb2_0,  mma0_ji, 2);
+				mmc0_4  = vmlaq_laneq_f32(mmc0_4,  mmb2_4,  mma0_ji, 2);
+				mmc0_8  = vmlaq_laneq_f32(mmc0_8,  mmb2_8,  mma0_ji, 2);
+				mmc0_12 = vmlaq_laneq_f32(mmc0_12, mmb2_12, mma0_ji, 2);
 
-				mmc0_16 = vmlaq_n_f32(mmc0_16, mmb2_16, vgetq_lane_f32(mma0_ji, 2));
-				mmc0_20 = vmlaq_n_f32(mmc0_20, mmb2_20, vgetq_lane_f32(mma0_ji, 2));
-				mmc0_24 = vmlaq_n_f32(mmc0_24, mmb2_24, vgetq_lane_f32(mma0_ji, 2));
-				mmc0_28 = vmlaq_n_f32(mmc0_28, mmb2_28, vgetq_lane_f32(mma0_ji, 2));
+				mmc0_16 = vmlaq_laneq_f32(mmc0_16, mmb2_16, mma0_ji, 2);
+				mmc0_20 = vmlaq_laneq_f32(mmc0_20, mmb2_20, mma0_ji, 2);
+				mmc0_24 = vmlaq_laneq_f32(mmc0_24, mmb2_24, mma0_ji, 2);
+				mmc0_28 = vmlaq_laneq_f32(mmc0_28, mmb2_28, mma0_ji, 2);
 
-				mmc1_0  = vmlaq_n_f32(mmc1_0,  mmb2_0,  vgetq_lane_f32(mma1_ji, 2));
-				mmc1_4  = vmlaq_n_f32(mmc1_4,  mmb2_4,  vgetq_lane_f32(mma1_ji, 2));
-				mmc1_8  = vmlaq_n_f32(mmc1_8,  mmb2_8,  vgetq_lane_f32(mma1_ji, 2));
-				mmc1_12 = vmlaq_n_f32(mmc1_12, mmb2_12, vgetq_lane_f32(mma1_ji, 2));
+				mmc1_0  = vmlaq_laneq_f32(mmc1_0,  mmb2_0,  mma1_ji, 2);
+				mmc1_4  = vmlaq_laneq_f32(mmc1_4,  mmb2_4,  mma1_ji, 2);
+				mmc1_8  = vmlaq_laneq_f32(mmc1_8,  mmb2_8,  mma1_ji, 2);
+				mmc1_12 = vmlaq_laneq_f32(mmc1_12, mmb2_12, mma1_ji, 2);
 
-				mmc1_16 = vmlaq_n_f32(mmc1_16, mmb2_16, vgetq_lane_f32(mma1_ji, 2));
-				mmc1_20 = vmlaq_n_f32(mmc1_20, mmb2_20, vgetq_lane_f32(mma1_ji, 2));
-				mmc1_24 = vmlaq_n_f32(mmc1_24, mmb2_24, vgetq_lane_f32(mma1_ji, 2));
-				mmc1_28 = vmlaq_n_f32(mmc1_28, mmb2_28, vgetq_lane_f32(mma1_ji, 2));
+				mmc1_16 = vmlaq_laneq_f32(mmc1_16, mmb2_16, mma1_ji, 2);
+				mmc1_20 = vmlaq_laneq_f32(mmc1_20, mmb2_20, mma1_ji, 2);
+				mmc1_24 = vmlaq_laneq_f32(mmc1_24, mmb2_24, mma1_ji, 2);
+				mmc1_28 = vmlaq_laneq_f32(mmc1_28, mmb2_28, mma1_ji, 2);
 
 				const float32x4_t mmb3_0  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  0]);
 				const float32x4_t mmb3_4  = reinterpret_cast< const float32x4_t& >(mb[i + 3][k +  4]);
@@ -871,25 +871,25 @@ static void matmul(
 				const float32x4_t mmb3_24 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 24]);
 				const float32x4_t mmb3_28 = reinterpret_cast< const float32x4_t& >(mb[i + 3][k + 28]);
 
-				mmc0_0  = vmlaq_n_f32(mmc0_0,  mmb3_0,  vgetq_lane_f32(mma0_ji, 3));
-				mmc0_4  = vmlaq_n_f32(mmc0_4,  mmb3_4,  vgetq_lane_f32(mma0_ji, 3));
-				mmc0_8  = vmlaq_n_f32(mmc0_8,  mmb3_8,  vgetq_lane_f32(mma0_ji, 3));
-				mmc0_12 = vmlaq_n_f32(mmc0_12, mmb3_12, vgetq_lane_f32(mma0_ji, 3));
+				mmc0_0  = vmlaq_laneq_f32(mmc0_0,  mmb3_0,  mma0_ji, 3);
+				mmc0_4  = vmlaq_laneq_f32(mmc0_4,  mmb3_4,  mma0_ji, 3);
+				mmc0_8  = vmlaq_laneq_f32(mmc0_8,  mmb3_8,  mma0_ji, 3);
+				mmc0_12 = vmlaq_laneq_f32(mmc0_12, mmb3_12, mma0_ji, 3);
 
-				mmc0_16 = vmlaq_n_f32(mmc0_16, mmb3_16, vgetq_lane_f32(mma0_ji, 3));
-				mmc0_20 = vmlaq_n_f32(mmc0_20, mmb3_20, vgetq_lane_f32(mma0_ji, 3));
-				mmc0_24 = vmlaq_n_f32(mmc0_24, mmb3_24, vgetq_lane_f32(mma0_ji, 3));
-				mmc0_28 = vmlaq_n_f32(mmc0_28, mmb3_28, vgetq_lane_f32(mma0_ji, 3));
+				mmc0_16 = vmlaq_laneq_f32(mmc0_16, mmb3_16, mma0_ji, 3);
+				mmc0_20 = vmlaq_laneq_f32(mmc0_20, mmb3_20, mma0_ji, 3);
+				mmc0_24 = vmlaq_laneq_f32(mmc0_24, mmb3_24, mma0_ji, 3);
+				mmc0_28 = vmlaq_laneq_f32(mmc0_28, mmb3_28, mma0_ji, 3);
 
-				mmc1_0  = vmlaq_n_f32(mmc1_0,  mmb3_0,  vgetq_lane_f32(mma1_ji, 3));
-				mmc1_4  = vmlaq_n_f32(mmc1_4,  mmb3_4,  vgetq_lane_f32(mma1_ji, 3));
-				mmc1_8  = vmlaq_n_f32(mmc1_8,  mmb3_8,  vgetq_lane_f32(mma1_ji, 3));
-				mmc1_12 = vmlaq_n_f32(mmc1_12, mmb3_12, vgetq_lane_f32(mma1_ji, 3));
+				mmc1_0  = vmlaq_laneq_f32(mmc1_0,  mmb3_0,  mma1_ji, 3);
+				mmc1_4  = vmlaq_laneq_f32(mmc1_4,  mmb3_4,  mma1_ji, 3);
+				mmc1_8  = vmlaq_laneq_f32(mmc1_8,  mmb3_8,  mma1_ji, 3);
+				mmc1_12 = vmlaq_laneq_f32(mmc1_12, mmb3_12, mma1_ji, 3);
 
-				mmc1_16 = vmlaq_n_f32(mmc1_16, mmb3_16, vgetq_lane_f32(mma1_ji, 3));
-				mmc1_20 = vmlaq_n_f32(mmc1_20, mmb3_20, vgetq_lane_f32(mma1_ji, 3));
-				mmc1_24 = vmlaq_n_f32(mmc1_24, mmb3_24, vgetq_lane_f32(mma1_ji, 3));
-				mmc1_28 = vmlaq_n_f32(mmc1_28, mmb3_28, vgetq_lane_f32(mma1_ji, 3));
+				mmc1_16 = vmlaq_laneq_f32(mmc1_16, mmb3_16, mma1_ji, 3);
+				mmc1_20 = vmlaq_laneq_f32(mmc1_20, mmb3_20, mma1_ji, 3);
+				mmc1_24 = vmlaq_laneq_f32(mmc1_24, mmb3_24, mma1_ji, 3);
+				mmc1_28 = vmlaq_laneq_f32(mmc1_28, mmb3_28, mma1_ji, 3);
 			}
 
 			reinterpret_cast< float32x4_t& >(mmc0[ 0]) = mmc0_0;

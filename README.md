@@ -14,10 +14,10 @@ The low-tech bash script `build_sgemm.sh` will try to build the test for a recog
 	*  1 - 2x16-element-wide SSE2 (x86/amd64) version
 	*  2 - 64-element-wide AVX256 (x86/amd64) version
 	*  3 - 2x64-element-wide AVX256 (x86/amd64) version
-	*  4 - 16-element-wide ASIMD2 (arm/aarch64) version
-	*  5 - 32-element-wide ASIMD2 (arm/aarch64) version
-	*  6 - 2x16-element-wide ASIMD2 (arm/aarch64) version
-	*  7 - 2x32-element-wide ASIMD2 (arm/aarch64) version
+	*  4 - 16-element-wide ASIMD2 (aarch64) version
+	*  5 - 32-element-wide ASIMD2 (aarch64) version
+	*  6 - 2x16-element-wide ASIMD2 (aarch64) version
+	*  7 - 2x32-element-wide ASIMD2 (aarch64) version
 	*  8 - 2x16-element-wide MSA (mips32/mips64) version
 * `PREFETCH` - distance, in floats, to prefetch in the innermost loop (0 for no prefetch; unused in the scalar version)
 * `MATX_SIZE` - dimension of the square matrices A, B & C
