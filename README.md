@@ -48,6 +48,8 @@ Best results measured in SP flops/clock by the formula:
 | Intel E3-1270v2 (IVB)      | 8-way             | 25.6      | 8 MB            [^2] | 13.40    | 11.05    | clang++ 3.6, ALT = 3, PREFETCH = 3072, AVX256 intrinsics, 1.6GHz            |
 | Intel E3-1270v2 (IVB)      | 8-way             | 25.6      | 8 MB            [^2] | 14.01    | 11.22    | g++     4.8, ALT = 3, PREFETCH = 3072, AVX256 intrinsics, 1.6GHz            |
 | Intel i7-4770 (HSW)        | 8-way             | 25.6      | 8 MB            [^2] | 22.72    | 11.65    | g++     5.1, ALT = 3, PREFETCH = 2560, AVX256+FMA3 intrinsics, 3.9GHz       |
+| Xeon Silver 4208 (CSL)     | 8-way             | 42.7      | 11 MB           [^2] | 16.76    | 13.10    | clang++ 7.0, ALT = 3, PREFETCH = 4608, AVX256+FMA3 intrinsics, 3.0GHz       |
+| Xeon Silver 4208 (CSL)     | 16-way            | 42.7      | 11 MB           [^2] | 30.28    | 16.50    | clang++ 7.0, ALT = 9, PREFETCH = 2048, AVX512 intrinsics, 2.0GHz            |
 | AMD Ryzen 1700X (Zen)      | 4-way             | 37.5      | 16 MB           [^2] | 14.15    | 10.22    | clang++ 3.8, ALT = 3, PREFETCH = 3072, AVX256 intrinsics, 3.4GHz            |
 | RK3368 (Cortex-A53)        | 2-way             | 6.4       | 512 KB          [^3] | 3.12     | 1.39     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.51GHz           |
 | RK3399 (Cortex-A72)        | 4-way             | 12.8      | 1 MB                 | 6.81     | 2.01     | clang++ 7.0, ALT = 7, PREFETCH = 2560, ASIMD2 intrinsics, 1.8GHz [^6]       |
