@@ -66,6 +66,7 @@ Best results measured in SP flops/clock by the formula:
 | Amlogic S922X (Cortex-A53)  | 2-way             | 10.56     | 256 KB               | 2.65     | 1.47     | clang++ 6.0, ALT = 6, PREFETCH = 2560, ASIMD2 intrinsics, 1.896GHz [^4]     |
 | Amlogic S922X (Cortex-A73)  | 4-way             | 10.56     | 1 MB                 | 5.20     | 2.21     | clang++ 6.0, ALT = 6, PREFETCH = 2048, ASIMD2 intrinsics, 1.8GHz [^4]       |
 | Snapdragon 835 (Cortex-A73) | 4-way             | 14.93     | 2 MB                 | 5.39     | 2.56     | clang++ 9.0, ALT = 6, PREFETCH = 2048, ASIMD2 intrinsics, 2.55GHz [^4]      |
+| Snapdragon 835 (Cortex-A73) | 4-way             | 14.93     | 2 MB                 | 5.43     | 3.92     | clang++ 6.0, ALT = 6, PREFETCH = 2048, ASIMD2 intrinsics, 2.55GHz [^4]      |
 | Baikal-T1 (MIPS P5600)      | 4-way             | 6.4       | 1 MB                 | 3.85     | 2.00     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^7]          |
 | Baikal-T1 (MIPS P5600)      | 4-way             | 6.4       | 1 MB                 | 3.74     | 2.09     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^7] [^8]     |
 
