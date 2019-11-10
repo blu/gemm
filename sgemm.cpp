@@ -733,31 +733,28 @@ static void matmul(
 	const float (&mb)[MATX_SIZE][MATX_SIZE],
 	float (&mc)[MATX_SIZE][MATX_SIZE]) {
 
-	float* mmc0 = mc[0];
-	float* mmc1 = mc[1];
-
 	for (size_t j = 0; j < MATX_SIZE; j += 2) {
-		for (size_t k = 0; k < MATX_SIZE; k += 32, mmc0 += 32, mmc1 += 32) {
+		for (size_t k = 0; k < MATX_SIZE; k += 32) {
 
-			float32x4_t mmc0_0  = reinterpret_cast< float32x4_t& >(mmc0[ 0]);
-			float32x4_t mmc0_4  = reinterpret_cast< float32x4_t& >(mmc0[ 4]);
-			float32x4_t mmc0_8  = reinterpret_cast< float32x4_t& >(mmc0[ 8]);
-			float32x4_t mmc0_12 = reinterpret_cast< float32x4_t& >(mmc0[12]);
+			float32x4_t mmc0_0  = reinterpret_cast< float32x4_t& >(mc[j + 0][k +  0]);
+			float32x4_t mmc0_4  = reinterpret_cast< float32x4_t& >(mc[j + 0][k +  4]);
+			float32x4_t mmc0_8  = reinterpret_cast< float32x4_t& >(mc[j + 0][k +  8]);
+			float32x4_t mmc0_12 = reinterpret_cast< float32x4_t& >(mc[j + 0][k + 12]);
 
-			float32x4_t mmc0_16 = reinterpret_cast< float32x4_t& >(mmc0[16]);
-			float32x4_t mmc0_20 = reinterpret_cast< float32x4_t& >(mmc0[20]);
-			float32x4_t mmc0_24 = reinterpret_cast< float32x4_t& >(mmc0[24]);
-			float32x4_t mmc0_28 = reinterpret_cast< float32x4_t& >(mmc0[28]);
+			float32x4_t mmc0_16 = reinterpret_cast< float32x4_t& >(mc[j + 0][k + 16]);
+			float32x4_t mmc0_20 = reinterpret_cast< float32x4_t& >(mc[j + 0][k + 20]);
+			float32x4_t mmc0_24 = reinterpret_cast< float32x4_t& >(mc[j + 0][k + 24]);
+			float32x4_t mmc0_28 = reinterpret_cast< float32x4_t& >(mc[j + 0][k + 28]);
 
-			float32x4_t mmc1_0  = reinterpret_cast< float32x4_t& >(mmc1[ 0]);
-			float32x4_t mmc1_4  = reinterpret_cast< float32x4_t& >(mmc1[ 4]);
-			float32x4_t mmc1_8  = reinterpret_cast< float32x4_t& >(mmc1[ 8]);
-			float32x4_t mmc1_12 = reinterpret_cast< float32x4_t& >(mmc1[12]);
+			float32x4_t mmc1_0  = reinterpret_cast< float32x4_t& >(mc[j + 1][k +  0]);
+			float32x4_t mmc1_4  = reinterpret_cast< float32x4_t& >(mc[j + 1][k +  4]);
+			float32x4_t mmc1_8  = reinterpret_cast< float32x4_t& >(mc[j + 1][k +  8]);
+			float32x4_t mmc1_12 = reinterpret_cast< float32x4_t& >(mc[j + 1][k + 12]);
 
-			float32x4_t mmc1_16 = reinterpret_cast< float32x4_t& >(mmc1[16]);
-			float32x4_t mmc1_20 = reinterpret_cast< float32x4_t& >(mmc1[20]);
-			float32x4_t mmc1_24 = reinterpret_cast< float32x4_t& >(mmc1[24]);
-			float32x4_t mmc1_28 = reinterpret_cast< float32x4_t& >(mmc1[28]);
+			float32x4_t mmc1_16 = reinterpret_cast< float32x4_t& >(mc[j + 1][k + 16]);
+			float32x4_t mmc1_20 = reinterpret_cast< float32x4_t& >(mc[j + 1][k + 20]);
+			float32x4_t mmc1_24 = reinterpret_cast< float32x4_t& >(mc[j + 1][k + 24]);
+			float32x4_t mmc1_28 = reinterpret_cast< float32x4_t& >(mc[j + 1][k + 28]);
 
 			for (size_t i = 0; i < MATX_SIZE; i += 4) {
 				const float32x4_t mma0_ji = reinterpret_cast< const float32x4_t& >(ma[j + 0][i]);
@@ -892,25 +889,25 @@ static void matmul(
 				mmc1_28 = vmlaq_laneq_f32(mmc1_28, mmb3_28, mma1_ji, 3);
 			}
 
-			reinterpret_cast< float32x4_t& >(mmc0[ 0]) = mmc0_0;
-			reinterpret_cast< float32x4_t& >(mmc0[ 4]) = mmc0_4;
-			reinterpret_cast< float32x4_t& >(mmc0[ 8]) = mmc0_8;
-			reinterpret_cast< float32x4_t& >(mmc0[12]) = mmc0_12;
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k +  0]) = mmc0_0;
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k +  4]) = mmc0_4;
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k +  8]) = mmc0_8;
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k + 12]) = mmc0_12;
 
-			reinterpret_cast< float32x4_t& >(mmc0[16]) = mmc0_16;
-			reinterpret_cast< float32x4_t& >(mmc0[20]) = mmc0_20;
-			reinterpret_cast< float32x4_t& >(mmc0[24]) = mmc0_24;
-			reinterpret_cast< float32x4_t& >(mmc0[28]) = mmc0_28;
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k + 16]) = mmc0_16;
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k + 20]) = mmc0_20;
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k + 24]) = mmc0_24;
+			reinterpret_cast< float32x4_t& >(mc[j + 0][k + 28]) = mmc0_28;
 
-			reinterpret_cast< float32x4_t& >(mmc1[ 0]) = mmc1_0;
-			reinterpret_cast< float32x4_t& >(mmc1[ 4]) = mmc1_4;
-			reinterpret_cast< float32x4_t& >(mmc1[ 8]) = mmc1_8;
-			reinterpret_cast< float32x4_t& >(mmc1[12]) = mmc1_12;
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k +  0]) = mmc1_0;
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k +  4]) = mmc1_4;
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k +  8]) = mmc1_8;
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k + 12]) = mmc1_12;
 
-			reinterpret_cast< float32x4_t& >(mmc1[16]) = mmc1_16;
-			reinterpret_cast< float32x4_t& >(mmc1[20]) = mmc1_20;
-			reinterpret_cast< float32x4_t& >(mmc1[24]) = mmc1_24;
-			reinterpret_cast< float32x4_t& >(mmc1[28]) = mmc1_28;
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k + 16]) = mmc1_16;
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k + 20]) = mmc1_20;
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k + 24]) = mmc1_24;
+			reinterpret_cast< float32x4_t& >(mc[j + 1][k + 28]) = mmc1_28;
 		}
 	}
 }
