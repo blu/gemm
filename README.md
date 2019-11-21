@@ -61,7 +61,7 @@ Best results measured in SP flops/clock by the formula:
 | MT8173C (Cortex-A72) *A32*  | 4-way             | 12.8      | 1 MB                 | 3.23     | 1.81     | clang++ 6.0, ALT = 7, PREFETCH = 2560, ASIMD intrinsics, 2.1GHz [^5]        |
 | MT8173C (Cortex-A72)        | 4-way             | 12.8      | 1 MB                 | 6.82     | 2.30     | clang++ 6.0, ALT = 7, PREFETCH = 2560, ASIMD2 intrinsics, 2.1GHz [^6]       |
 | Marvell A8040 (Cortex-A72)  | 4-way             | 12.8      | 1 MB                 | 6.52     | 2.91     | clang++ 3.5, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.3GHz [^6]       |
-| AWS Graviton (Cortex-A72)   | 4-way             | 19.2      | 2 MB                 | 6.13     | 3.33     | clang++ 3.8, ALT = 7, PREFETCH = 2560, ASIMD2 intrinsics, 2.28GHz [^6] [^9] |
+| NXP LX2160A (Cortex-A72)    | 4-way             | 19.2      | 1 MB                 | 6.70     | 4.08     | clang++ 6.0, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 2.0GHz [^6]       |
 | AWS Graviton (Cortex-A72)   | 4-way             | 19.2      | 2 MB                 | 6.81     | 4.12     | clang++ 6.0, ALT = 7, PREFETCH = 1024, ASIMD2 intrinsics, 2.28GHz [^6] [^9] |
 | Amlogic S922X (Cortex-A53)  | 2-way             | 10.56     | 256 KB               | 2.65     | 1.47     | clang++ 6.0, ALT = 6, PREFETCH = 2560, ASIMD2 intrinsics, 1.896GHz [^4]     |
 | Amlogic S922X (Cortex-A73)  | 4-way             | 10.56     | 1 MB                 | 5.20     | 2.21     | clang++ 6.0, ALT = 6, PREFETCH = 2048, ASIMD2 intrinsics, 1.8GHz [^4]       |
