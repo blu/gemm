@@ -24,29 +24,28 @@
 typedef __attribute__ ((vector_size(4 * sizeof(float)))) float float4;
 
 __attribute__ ((always_inline)) inline void foo(
-	size_t globalIdx,
-	size_t globalIdy,
-	size_t dim, // dimension in scalars
-	const float4 *A,
-	const float4 *B,
-	float4 *C)
+	size_t globalIdx, // global x coord of the invocation, in vectors
+	size_t globalIdy, // global y coord of the invocation, in vectors
+	size_t dim,       // matrix dimension, in vectors
+	const float4 *a,  // src arg a, in vectors
+	const float4 *b,  // src arg b, in vectors
+	float4 *c)        // dst arg, in vectors
 {
 	float4 result = (float4){ 0, 0, 0, 0 };
-	const size_t dimVec = dim / 4;
-	for (size_t i = 0; i < dimVec; ++i) {
-		float4 Ai = A[dimVec * globalIdy + i];
-		float4 Bi[4];
-		Bi[0] = B[dimVec * (i * 4 + 0) + globalIdx];
-		Bi[1] = B[dimVec * (i * 4 + 1) + globalIdx];
-		Bi[2] = B[dimVec * (i * 4 + 2) + globalIdx];
-		Bi[3] = B[dimVec * (i * 4 + 3) + globalIdx];
-		result += Ai[0] * Bi[0];
-		result += Ai[1] * Bi[1];
-		result += Ai[2] * Bi[2];
-		result += Ai[3] * Bi[3];
+	for (size_t i = 0; i < dim; ++i) {
+		float4 ai = a[dim * globalIdy + i];
+		float4 bi[4];
+		bi[0] = b[dim * (i * 4 + 0) + globalIdx];
+		bi[1] = b[dim * (i * 4 + 1) + globalIdx];
+		bi[2] = b[dim * (i * 4 + 2) + globalIdx];
+		bi[3] = b[dim * (i * 4 + 3) + globalIdx];
+		result += ai[0] * bi[0];
+		result += ai[1] * bi[1];
+		result += ai[2] * bi[2];
+		result += ai[3] * bi[3];
 	}
 
-	C[dimVec * globalIdy + globalIdx] = result;
+	c[dim * globalIdy + globalIdx] = result;
 }
 
 #if MATX4
@@ -103,7 +102,7 @@ int main(int, char**) {
 	for (size_t i = 0; i < matxDim; ++i) {
 		for (size_t j = 0; j < matxDim / vectorDim; ++j) {
 
-			foo(j, i, matxDim,
+			foo(j, i, matxDim / vectorDim,
 				reinterpret_cast<const vector_t*>(a),
 				reinterpret_cast<const vector_t*>(b),
 				reinterpret_cast<vector_t*>(c));
@@ -112,7 +111,7 @@ int main(int, char**) {
 
 	for (size_t i = 0; i < matxDim; ++i) {
 		for (size_t j = 0; j < matxDim; ++j) {
-			fprintf(stdout, "%f ", c[i * matxDim + j]);
+			fprintf(stdout, "%8.2f ", c[i * matxDim + j]);
 		}
 		fputc('\n', stdout);
 	}
