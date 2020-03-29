@@ -96,8 +96,9 @@ __attribute__ ((aligned(16))) float c[matxDim * matxDim];
 const size_t vectorDim = sizeof(float4) / sizeof(float);
 typedef float4 vector_t;
 
-int main(int, char**) {
-	asm volatile ("" ::: "memory"); // lose compiler's tracking of the content of a and b
+int main(int, char**)
+{
+	asm volatile ("" ::: "memory");
 
 	for (size_t i = 0; i < matxDim; ++i) {
 		for (size_t j = 0; j < matxDim / vectorDim; ++j) {
