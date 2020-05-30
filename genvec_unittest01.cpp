@@ -30,15 +30,15 @@ vec max(const vec& a, const vec& b)
 
 void bitonic_sort(vel &ar)
 {
-    const vec a0 = (vec){ ar[0], ar[2], ar[4], ar[6] };
-    const vec b0 = (vec){ ar[1], ar[3], ar[5], ar[7] };
-    const vec min0 = min(a0, b0);
-    const vec max0 = max(a0, b0);
+	const vec a0 = (vec){ ar[0], ar[2], ar[4], ar[6] };
+	const vec b0 = (vec){ ar[1], ar[3], ar[5], ar[7] };
+	const vec min0 = min(a0, b0);
+	const vec max0 = max(a0, b0);
 
-    const vec a1 = (vec){ min0[0], min0[1], min0[2], min0[3] };
-    const vec b1 = (vec){ max0[1], max0[0], max0[3], max0[2] };
-    const vec min1 = min(a1, b1);
-    const vec max1 = max(a1, b1);
+	const vec a1 = (vec){ min0[0], min0[1], min0[2], min0[3] };
+	const vec b1 = (vec){ max0[1], max0[0], max0[3], max0[2] };
+	const vec min1 = min(a1, b1);
+	const vec max1 = max(a1, b1);
 
 	const vec a2 = (vec){ min1[0], max1[0], max1[2], min1[2] };
 	const vec b2 = (vec){ min1[1], max1[1], max1[3], min1[3] };
