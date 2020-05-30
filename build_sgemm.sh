@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CC=clang++-3.6
+CC=${CXX:-clang++}
 CFLAGS=(
 	-std=c++11
 	-O3
