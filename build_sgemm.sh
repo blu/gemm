@@ -51,25 +51,75 @@ if [[ $UNAME_MACHINE == "aarch64" ]]; then
 	)
 
 	# clang can fail auto-detecting the host armv8 cpu on some setups; collect all part numbers
+	IMPLR=`cat /proc/cpuinfo | grep "^CPU implementer" | sed s/^[^[:digit:]]*//`
 	UARCH=`cat /proc/cpuinfo | grep "^CPU part" | sed s/^[^[:digit:]]*//`
 
-	# in order of preference, in case of big.LITTLE
-	if   [ `echo $UARCH | grep -c 0xd09` -ne 0 ]; then
-		CFLAGS+=(
-			-mtune=cortex-a73
-		)
-	elif [ `echo $UARCH | grep -c 0xd08` -ne 0 ]; then
-		CFLAGS+=(
-			-mtune=cortex-a72
-		)
-	elif [ `echo $UARCH | grep -c 0xd07` -ne 0 ]; then
-		CFLAGS+=(
-			-mtune=cortex-a57
-		)
-	elif [ `echo $UARCH | grep -c 0xd03` -ne 0 ]; then
-		CFLAGS+=(
-			-mtune=cortex-a53
-		)
+	if   [ `echo $IMPLR | grep -c 0x41` -ne 0 ]; then # Arm Holdings
+		# in order of preference, in case of big.LITTLE
+		if   [ `echo $UARCH | grep -c 0xd0c` -ne 0 ]; then
+			CFLAGS+=(
+				-mtune=cortex-a76 # cortex-n1
+			)
+		elif [ `echo $UARCH | grep -c 0xd0b` -ne 0 ]; then
+			CFLAGS+=(
+				-mtune=cortex-a76
+			)
+		elif [ `echo $UARCH | grep -c 0xd0a` -ne 0 ]; then
+			CFLAGS+=(
+				-mtune=cortex-a75
+			)
+		elif [ `echo $UARCH | grep -c 0xd09` -ne 0 ]; then
+			CFLAGS+=(
+				-mtune=cortex-a73
+			)
+		elif [ `echo $UARCH | grep -c 0xd08` -ne 0 ]; then
+			CFLAGS+=(
+				-mtune=cortex-a72
+			)
+		elif [ `echo $UARCH | grep -c 0xd07` -ne 0 ]; then
+			CFLAGS+=(
+				-mtune=cortex-a57
+			)
+		elif [ `echo $UARCH | grep -c 0xd05` -ne 0 ]; then
+			CFLAGS+=(
+				-mtune=cortex-a55
+			)
+		elif [ `echo $UARCH | grep -c 0xd04` -ne 0 ]; then
+			CFLAGS+=(
+				-mtune=cortex-a35
+			)
+		elif [ `echo $UARCH | grep -c 0xd03` -ne 0 ]; then
+			CFLAGS+=(
+				-mtune=cortex-a53
+			)
+		fi
+	elif [ `echo $IMPLR | grep -c 0x51` -ne 0 ]; then # Qualcomm
+		# in order of preference, in case of big.LITTLE
+		if   [ `echo $UARCH | grep -c 0x804` -ne 0 ]; then
+			CFLAGS+=(
+				-mtune=cortex-a76 # kryo 4xx gold
+			)
+		elif [ `echo $UARCH | grep -c 0x805` -ne 0 ]; then
+			CFLAGS+=(
+				-mtune=cortex-a55 # kryo 4xx silver
+			)
+		elif [ `echo $UARCH | grep -c 0x802` -ne 0 ]; then
+			CFLAGS+=(
+				-mtune=cortex-a75 # kryo 3xx gold
+			)
+		elif [ `echo $UARCH | grep -c 0x803` -ne 0 ]; then
+			CFLAGS+=(
+				-mtune=cortex-a55 # kryo 3xx silver
+			)
+		elif [ `echo $UARCH | grep -c 0x800` -ne 0 ]; then
+			CFLAGS+=(
+				-mtune=cortex-a73 # kryo 2xx gold
+			)
+		elif [ `echo $UARCH | grep -c 0x801` -ne 0 ]; then
+			CFLAGS+=(
+				-mtune=cortex-a53 # kryo 2xx silver
+			)
+		fi
 	fi
 
 elif [[ $HOSTTYPE == "i686" ]]; then
