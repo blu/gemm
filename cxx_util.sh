@@ -1,5 +1,8 @@
-# update array CXXFLAGS with uarch-specific flags
+#!/bin/bash
 
+#
+# update array CXXFLAGS with uarch-specific flags
+#
 function cxx_uarch_arm() {
 	# clang can fail auto-detecting the host armv8 cpu on some setups; collect all part numbers
 	VENDOR=`cat /proc/cpuinfo | grep -m 1 "^CPU implementer" | sed s/^[^[:digit:]]*//`
