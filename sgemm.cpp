@@ -1093,6 +1093,43 @@ static void matmul(
 	}
 }
 
+#elif ALT == 10
+#include <arm_sve.h>
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// sgemm kernel window of 1x16
+
+static void matmul(
+	const float (&ma)[MATX_SIZE][MATX_SIZE],
+	const float (&mb)[MATX_SIZE][MATX_SIZE],
+	float (&mc)[MATX_SIZE][MATX_SIZE]) {
+
+	const svbool_t pr = svptrue_pat_b32(SV_VL16);
+
+	for (size_t j = 0; j < MATX_SIZE; ++j) {
+		for (size_t k = 0; k < MATX_SIZE; k += 16) {
+
+			svfloat32_t mmc = svld1(pr, &mc[j][k]);
+
+			for (size_t i = 0; i < MATX_SIZE; ++i) {
+
+#if PREFETCH != 0
+				// 16 * sizeof(fp32) = 2^6 bytes = 1 * 64-byte cachelines
+				prefetchRangeMultiple< 64 >(&mb[i][k + PREFETCH]);
+
+#endif
+				const svfloat32_t mmb = svld1(pr, &mb[i][k]);
+
+				const float ma_ji = ma[j][i];
+
+				mmc = svmla_n_f32_x(pr, mmc, mmb, ma_ji);
+			}
+
+			svst1(pr, &mc[j][k], mmc);
+		}
+	}
+}
+
 #else
 	#error unknown ALT
 

@@ -20,6 +20,7 @@ The low-tech bash script `build_sgemm.sh` will try to build the test for a recog
 	*  7 - 2x32-element-wide ASIMD2 (aarch64) version
 	*  8 - 2x16-element-wide MSA (mips32/mips64) version
 	*  9 - 2x32-element-wide AVX512 (x86/amd64) version
+	* 10 - 1x16-element-wide SVE512 (aarch64) version
 * `PREFETCH` - distance, in floats, to prefetch in the innermost loop (0 for no prefetch; unused in the scalar version)
 * `MATX_SIZE` - dimension of the square matrices A, B & C
 * `REP_EXP` - exponent of the number of repetitions of the test, ie. 1eEXP
