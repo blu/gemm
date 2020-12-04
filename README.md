@@ -20,7 +20,8 @@ The low-tech bash script `build_sgemm.sh` will try to build the test for a recog
 	*  7 - 2x32-element-wide ASIMD2 (aarch64) version
 	*  8 - 2x16-element-wide MSA (mips32/mips64) version
 	*  9 - 2x32-element-wide AVX512 (x86/amd64) version
-	* 10 - 1x16-element-wide SVE512 (aarch64) version
+	* 10 - 2x64-element-wide AVX512 (x86/amd64) version
+	* 11 - 16-element-wide SVE512 (aarch64) version
 * `PREFETCH` - distance, in floats, to prefetch in the innermost loop (0 for no prefetch; unused in the scalar version)
 * `MATX_SIZE` - dimension of the square matrices A, B & C
 * `REP_EXP` - exponent of the number of repetitions of the test, ie. 1eEXP
@@ -52,6 +53,7 @@ Best results measured in SP flops/clock by the formula:
 | Intel i7-4770 (HSW)         | 8-way             | 25.6      | 8 MB            [^2] | 22.72    | 11.65    | g++     5.1, ALT = 3, PREFETCH = 2560, AVX256+FMA3 intrinsics, 3.9GHz       |
 | Xeon Silver 4208 (CSL)      | 8-way             | 42.7      | 11 MB           [^2] | 16.76    | 13.10    | clang++ 7.0, ALT = 3, PREFETCH = 4608, AVX256+FMA3 intrinsics, 3.0GHz       |
 | Xeon Silver 4208 (CSL)      | 16-way            | 42.7      | 11 MB           [^2] | 30.28    | 16.50    | clang++ 7.0, ALT = 9, PREFETCH = 2048, AVX512 intrinsics, 2.0GHz            |
+| Xeon W-2155 (SKL)           | 16-way            | 75.5      | 13.75 MB        [^2] | 50.00    | 16.62    | clang++ 10.0, ALT = 10, PREFETCH = 2560, AVX512 intrinsics, 4.0GHz          |
 | AMD Ryzen 1700X (Zen)       | 4-way             | 37.5      | 16 MB           [^2] | 14.15    | 10.22    | clang++ 3.8, ALT = 3, PREFETCH = 3072, AVX256 intrinsics, 3.4GHz            |
 | RK3368 (Cortex-A53)         | 2-way             | 6.4       | 512 KB          [^3] | 3.12     | 1.39     | clang++ 3.6, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 1.51GHz           |
 | RK3399 (Cortex-A72)         | 4-way             | 12.8      | 1 MB                 | 6.81     | 2.01     | clang++ 7.0, ALT = 7, PREFETCH = 2560, ASIMD2 intrinsics, 1.8GHz [^6]       |

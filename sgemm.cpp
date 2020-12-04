@@ -1094,6 +1094,71 @@ static void matmul(
 }
 
 #elif ALT == 10
+#include <immintrin.h>
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// sgemm kernel window of 2x64
+
+static void matmul(
+	const float (&ma)[MATX_SIZE][MATX_SIZE],
+	const float (&mb)[MATX_SIZE][MATX_SIZE],
+	float (&mc)[MATX_SIZE][MATX_SIZE]) {
+
+	for (size_t j = 0; j < MATX_SIZE; j += 2) {
+		for (size_t k = 0; k < MATX_SIZE; k += 64) {
+
+			__m512 mmc0_0  = _mm512_load_ps(&mc[j + 0][k +  0]);
+			__m512 mmc0_16 = _mm512_load_ps(&mc[j + 0][k + 16]);
+			__m512 mmc0_32 = _mm512_load_ps(&mc[j + 0][k + 32]);
+			__m512 mmc0_48 = _mm512_load_ps(&mc[j + 0][k + 48]);
+
+			__m512 mmc1_0  = _mm512_load_ps(&mc[j + 1][k +  0]);
+			__m512 mmc1_16 = _mm512_load_ps(&mc[j + 1][k + 16]);
+			__m512 mmc1_32 = _mm512_load_ps(&mc[j + 1][k + 32]);
+			__m512 mmc1_48 = _mm512_load_ps(&mc[j + 1][k + 48]);
+
+			for (size_t i = 0; i < MATX_SIZE; ++i) {
+
+#if PREFETCH != 0
+				// 64 * sizeof(fp32) = 2^8 bytes = 4 * 64-byte cachelines
+				prefetchRangeMultiple< 256 >(&mb[i][k + PREFETCH]);
+
+#endif
+				const __m512 mmb0  = _mm512_load_ps(&mb[i][k +  0]);
+				const __m512 mmb16 = _mm512_load_ps(&mb[i][k + 16]);
+				const __m512 mmb32 = _mm512_load_ps(&mb[i][k + 32]);
+				const __m512 mmb48 = _mm512_load_ps(&mb[i][k + 48]);
+
+				const float a0_ji = ma[j + 0][i];
+				const float a1_ji = ma[j + 1][i];
+				const __m512 ma0_ji = _mm512_broadcastss_ps(_mm_set_ss(a0_ji));
+				const __m512 ma1_ji = _mm512_broadcastss_ps(_mm_set_ss(a1_ji));
+
+				mmc0_0  += ma0_ji * mmb0;
+				mmc0_16 += ma0_ji * mmb16;
+				mmc0_32 += ma0_ji * mmb32;
+				mmc0_48 += ma0_ji * mmb48;
+
+				mmc1_0  += ma1_ji * mmb0;
+				mmc1_16 += ma1_ji * mmb16;
+				mmc1_32 += ma1_ji * mmb32;
+				mmc1_48 += ma1_ji * mmb48;
+			}
+
+			_mm512_store_ps(&mc[j + 0][k +  0], mmc0_0);
+			_mm512_store_ps(&mc[j + 0][k + 16], mmc0_16);
+			_mm512_store_ps(&mc[j + 0][k + 32], mmc0_32);
+			_mm512_store_ps(&mc[j + 0][k + 48], mmc0_48);
+
+			_mm512_store_ps(&mc[j + 1][k +  0], mmc1_0);
+			_mm512_store_ps(&mc[j + 1][k + 16], mmc1_16);
+			_mm512_store_ps(&mc[j + 1][k + 32], mmc1_32);
+			_mm512_store_ps(&mc[j + 1][k + 48], mmc1_48);
+		}
+	}
+}
+
+#elif ALT == 11
 #include <arm_sve.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
