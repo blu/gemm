@@ -75,6 +75,8 @@ Best results measured in SP flops/clock by the formula:
 | NVIDIA armv8.2 (Carmel)     | 4-way             | 51.2      | 4 MB            [^2] | 13.49    | 6.90     | clang++ 9.0, ALT = 7, PREFETCH = 3584, ASIMD2 intrinsics, 1.91GHz           |
 | Fujitsu armv8.2 (A64fx)     | 16-way            | 256       | 8 MB            [^2] | 13.86    | 13.33    | g++     10.2, ALT = 11, PREFETCH=4096, SVE intrinsics, 2.2GHz [^6]          |
 | Fujitsu armv8.2 (A64fx)     | 16-way            | 256       | 8 MB            [^2] | 27.89    | 23.26    | g++     10.2, ALT = 12, PREFETCH=4096, SVE intrinsics, 2.2GHz [^6]          |
+| Fujitsu armv8.2 (A64fx)     | 16-way            | 256       | 8 MB            [^2] | 13.32    | 13.46    | armclang++ 20.3, ALT = 11, PREFETCH=3584, SVE intrinsics, 2.2GHz [^6]       |
+| Fujitsu armv8.2 (A64fx)     | 16-way            | 256       | 8 MB            [^2] | 28.20    | 26.28    | armclang++ 20.3, ALT = 12, PREFETCH=4608, SVE intrinsics, 2.2GHz [^6]       |
 | Baikal-T1 (MIPS P5600)      | 4-way             | 6.4       | 1 MB                 | 3.85     | 2.00     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^7]          |
 | Baikal-T1 (MIPS P5600)      | 4-way             | 6.4       | 1 MB                 | 3.74     | 2.09     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^7] [^8]     |
 
