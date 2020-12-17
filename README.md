@@ -21,7 +21,8 @@ The low-tech bash script `build_sgemm.sh` will try to build the test for a recog
 	*  8 - 2x16-element-wide MSA (mips32/mips64) version
 	*  9 - 2x32-element-wide AVX512 (x86/amd64) version
 	* 10 - 2x64-element-wide AVX512 (x86/amd64) version
-	* 11 - 16-element-wide SVE512 (aarch64) version
+	* 11 - 64-element-wide SVE512 (aarch64) version
+	* 12 - 2x64-element-wide SVE512 (aarch64) version
 * `PREFETCH` - distance, in floats, to prefetch in the innermost loop (0 for no prefetch; unused in the scalar version)
 * `MATX_SIZE` - dimension of the square matrices A, B & C
 * `REP_EXP` - exponent of the number of repetitions of the test, ie. 1eEXP
@@ -72,6 +73,8 @@ Best results measured in SP flops/clock by the formula:
 | Snapdragon 835 (Cortex-A73) | 4-way             | 14.93     | 2 MB                 | 5.43     | 3.92     | clang++ 6.0, ALT = 6, PREFETCH = 2048, ASIMD2 intrinsics, 2.55GHz [^4]      |
 | Snapdragon SQ1 (Cortex-A76) | 4-way             | 34.13     | 4 MB            [^2] | 15.29    | 6.79     | clang++ 9.0, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 3.0GHz            |
 | NVIDIA armv8.2 (Carmel)     | 4-way             | 51.2      | 4 MB            [^2] | 13.49    | 6.90     | clang++ 9.0, ALT = 7, PREFETCH = 3584, ASIMD2 intrinsics, 1.91GHz           |
+| Fujitsu armv8.2 (A64fx)     | 16-way            | 256       | 8 MB                 | 13.86    | 13.33    | g++     10.2, ALT = 11, PREFETCH=4096, SVE intrinsics, 2.2GHz [^6]          |
+| Fujitsu armv8.2 (A64fx)     | 16-way            | 256       | 8 MB                 | 27.89    | 23.26    | g++     10.2, ALT = 12, PREFETCH=4096, SVE intrinsics, 2.2GHz [^6]          |
 | Baikal-T1 (MIPS P5600)      | 4-way             | 6.4       | 1 MB                 | 3.85     | 2.00     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^7]          |
 | Baikal-T1 (MIPS P5600)      | 4-way             | 6.4       | 1 MB                 | 3.74     | 2.09     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^7] [^8]     |
 

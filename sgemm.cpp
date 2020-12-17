@@ -1162,7 +1162,7 @@ static void matmul(
 #include <arm_sve.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-// sgemm kernel window of 1x16
+// sgemm kernel window of 1x64
 
 static void matmul(
 	const float (&ma)[MATX_SIZE][MATX_SIZE],
@@ -1172,25 +1172,102 @@ static void matmul(
 	const svbool_t pr = svptrue_pat_b32(SV_VL16);
 
 	for (size_t j = 0; j < MATX_SIZE; ++j) {
-		for (size_t k = 0; k < MATX_SIZE; k += 16) {
+		for (size_t k = 0; k < MATX_SIZE; k += 64) {
 
-			svfloat32_t mmc = svld1(pr, &mc[j][k]);
+			svfloat32_t mmc0  = svld1(pr, &mc[j][k +  0]);
+			svfloat32_t mmc16 = svld1(pr, &mc[j][k + 16]);
+			svfloat32_t mmc32 = svld1(pr, &mc[j][k + 32]);
+			svfloat32_t mmc48 = svld1(pr, &mc[j][k + 48]);
 
 			for (size_t i = 0; i < MATX_SIZE; ++i) {
 
 #if PREFETCH != 0
-				// 16 * sizeof(fp32) = 2^6 bytes = 1 * 64-byte cachelines
-				prefetchRangeMultiple< 64 >(&mb[i][k + PREFETCH]);
+				// 64 * sizeof(fp32) = 2^8 bytes = 4 * 64-byte cachelines
+				prefetchRangeMultiple< 256 >(&mb[i][k + PREFETCH]);
 
 #endif
-				const svfloat32_t mmb = svld1(pr, &mb[i][k]);
+				const svfloat32_t mmb0  = svld1(pr, &mb[i][k +  0]);
+				const svfloat32_t mmb16 = svld1(pr, &mb[i][k + 16]);
+				const svfloat32_t mmb32 = svld1(pr, &mb[i][k + 32]);
+				const svfloat32_t mmb48 = svld1(pr, &mb[i][k + 48]);
 
 				const float ma_ji = ma[j][i];
 
-				mmc = svmla_n_f32_x(pr, mmc, mmb, ma_ji);
+				mmc0  = svmla_n_f32_x(pr, mmc0,  mmb0,  ma_ji);
+				mmc16 = svmla_n_f32_x(pr, mmc16, mmb16, ma_ji);
+				mmc32 = svmla_n_f32_x(pr, mmc32, mmb32, ma_ji);
+				mmc48 = svmla_n_f32_x(pr, mmc48, mmb48, ma_ji);
 			}
 
-			svst1(pr, &mc[j][k], mmc);
+			svst1(pr, &mc[j][k +  0], mmc0);
+			svst1(pr, &mc[j][k + 16], mmc16);
+			svst1(pr, &mc[j][k + 32], mmc32);
+			svst1(pr, &mc[j][k + 48], mmc48);
+		}
+	}
+}
+
+#elif ALT == 12
+#include <arm_sve.h>
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+// sgemm kernel window of 2x64
+
+static void matmul(
+	const float (&ma)[MATX_SIZE][MATX_SIZE],
+	const float (&mb)[MATX_SIZE][MATX_SIZE],
+	float (&mc)[MATX_SIZE][MATX_SIZE]) {
+
+	const svbool_t pr = svptrue_pat_b32(SV_VL16);
+
+	for (size_t j = 0; j < MATX_SIZE; j += 2) {
+		for (size_t k = 0; k < MATX_SIZE; k += 64) {
+
+			svfloat32_t mmc0_0  = svld1(pr, &mc[j + 0][k +  0]);
+			svfloat32_t mmc0_16 = svld1(pr, &mc[j + 0][k + 16]);
+			svfloat32_t mmc0_32 = svld1(pr, &mc[j + 0][k + 32]);
+			svfloat32_t mmc0_48 = svld1(pr, &mc[j + 0][k + 48]);
+
+			svfloat32_t mmc1_0  = svld1(pr, &mc[j + 1][k +  0]);
+			svfloat32_t mmc1_16 = svld1(pr, &mc[j + 1][k + 16]);
+			svfloat32_t mmc1_32 = svld1(pr, &mc[j + 1][k + 32]);
+			svfloat32_t mmc1_48 = svld1(pr, &mc[j + 1][k + 48]);
+
+			for (size_t i = 0; i < MATX_SIZE; ++i) {
+
+#if PREFETCH != 0
+				// 64 * sizeof(fp32) = 2^8 bytes = 4 * 64-byte cachelines
+				prefetchRangeMultiple< 256 >(&mb[i][k + PREFETCH]);
+
+#endif
+				const svfloat32_t mmb0  = svld1(pr, &mb[i][k +  0]);
+				const svfloat32_t mmb16 = svld1(pr, &mb[i][k + 16]);
+				const svfloat32_t mmb32 = svld1(pr, &mb[i][k + 32]);
+				const svfloat32_t mmb48 = svld1(pr, &mb[i][k + 48]);
+
+				const float ma0_ji = ma[j + 0][i];
+				const float ma1_ji = ma[j + 1][i];
+
+				mmc0_0  = svmla_n_f32_x(pr, mmc0_0,  mmb0,  ma0_ji);
+				mmc0_16 = svmla_n_f32_x(pr, mmc0_16, mmb16, ma0_ji);
+				mmc0_32 = svmla_n_f32_x(pr, mmc0_32, mmb32, ma0_ji);
+				mmc0_48 = svmla_n_f32_x(pr, mmc0_48, mmb48, ma0_ji);
+
+				mmc1_0  = svmla_n_f32_x(pr, mmc1_0,  mmb0,  ma1_ji);
+				mmc1_16 = svmla_n_f32_x(pr, mmc1_16, mmb16, ma1_ji);
+				mmc1_32 = svmla_n_f32_x(pr, mmc1_32, mmb32, ma1_ji);
+				mmc1_48 = svmla_n_f32_x(pr, mmc1_48, mmb48, ma1_ji);
+			}
+
+			svst1(pr, &mc[j + 0][k +  0], mmc0_0);
+			svst1(pr, &mc[j + 0][k + 16], mmc0_16);
+			svst1(pr, &mc[j + 0][k + 32], mmc0_32);
+			svst1(pr, &mc[j + 0][k + 48], mmc0_48);
+
+			svst1(pr, &mc[j + 1][k +  0], mmc1_0);
+			svst1(pr, &mc[j + 1][k + 16], mmc1_16);
+			svst1(pr, &mc[j + 1][k + 32], mmc1_32);
+			svst1(pr, &mc[j + 1][k + 48], mmc1_48);
 		}
 	}
 }
