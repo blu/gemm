@@ -23,6 +23,7 @@ The low-tech bash script `build_sgemm.sh` will try to build the test for a recog
 	* 10 - 2x64-element-wide AVX512 (x86/amd64) version
 	* 11 - 64-element-wide SVE512 (aarch64) version
 	* 12 - 2x64-element-wide SVE512 (aarch64) version
+	* 13 - 4x64-element-wide SVE512 (aarch64) version
 * `PREFETCH` - distance, in floats, to prefetch in the innermost loop (0 for no prefetch; unused in the scalar version)
 * `MATX_SIZE` - dimension of the square matrices A, B & C
 * `REP_EXP` - exponent of the number of repetitions of the test, ie. 1eEXP
@@ -77,6 +78,7 @@ Best results measured in SP flops/clock by the formula:
 | Fujitsu armv8.2 (A64fx)     | 16-way            | 256       | 8 MB            [^2] | 27.89    | 23.26    | g++     10.2, ALT = 12, PREFETCH=4096, SVE intrinsics, 2.2GHz [^6]          |
 | Fujitsu armv8.2 (A64fx)     | 16-way            | 256       | 8 MB            [^2] | 13.32    | 13.46    | armclang++ 20.3, ALT = 11, PREFETCH=3584, SVE intrinsics, 2.2GHz [^6]       |
 | Fujitsu armv8.2 (A64fx)     | 16-way            | 256       | 8 MB            [^2] | 28.20    | 26.28    | armclang++ 20.3, ALT = 12, PREFETCH=4608, SVE intrinsics, 2.2GHz [^6]       |
+| Fujitsu armv8.2 (A64fx)     | 16-way            | 256       | 8 MB            [^2] | 39.64    | 36.17    | armclang++ 20.3, ALT = 13, PREFETCH=3072, SVE intrinsics, 2.2GHz            |
 | Baikal-T1 (MIPS P5600)      | 4-way             | 6.4       | 1 MB                 | 3.85     | 2.00     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^7]          |
 | Baikal-T1 (MIPS P5600)      | 4-way             | 6.4       | 1 MB                 | 3.74     | 2.09     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^7] [^8]     |
 

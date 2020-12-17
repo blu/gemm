@@ -113,6 +113,20 @@ function cxx_uarch_arm() {
 				-DCACHELINE_SIZE=64
 			)
 		fi
+	elif [[ $VENDOR == 0x46 ]]; then # Fujitsu
+		if   [ `echo $UARCH | grep -c 0x001` -ne 0 ]; then # a64fx
+			CXXFLAGS+=(
+				-march=armv8.2-a+sve
+				-mcpu=a64fx
+				-DCACHELINE_SIZE=128
+			)
+		else
+			echo WARNING: unsupported uarch $UARCH by vendor $VENDOR
+			# set compiler flags to something sane
+			CXXFLAGS+=(
+				-DCACHELINE_SIZE=128
+			)
+		fi
 	elif [[ $VENDOR == 0x51 ]]; then # Qualcomm
 		# in order of preference, in case of big.LITTLE
 		if   [ `echo $UARCH | grep -c 0x804` -ne 0 ]; then # kryo 4xx gold
