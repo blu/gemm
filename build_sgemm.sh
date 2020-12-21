@@ -50,6 +50,14 @@ if [[ $UNAME_MACHINE == "aarch64" ]]; then
 
 	cxx_uarch_arm
 
+elif [[ $UNAME_MACHINE == "arm64" ]]; then
+
+	CXXFLAGS+=(
+		-DCACHELINE_SIZE=`sysctl hw | grep cachelinesize | sed 's/^hw.cachelinesize: //g'`
+		-march=armv8.4-a
+		-mtune=native
+	)
+
 elif [[ $HOSTTYPE == "i686" ]]; then
 
 	CXXFLAGS+=(

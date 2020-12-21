@@ -2,7 +2,9 @@
 #include <stdint.h>
 #include "timer.h"
 
-#define VM_PAGE_SIZE 4096
+#if !defined(SGEMM_PAGE_SIZE)
+#define SGEMM_PAGE_SIZE 4096
+#endif
 
 #if !defined(MATX_SIZE)
 #define MATX_SIZE 512
@@ -15,9 +17,9 @@
 #define CATENATE(x, y) x##y
 #define CAT(x, y) CATENATE(x, y)
 
-float ma[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(VM_PAGE_SIZE)));
-float mb[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(VM_PAGE_SIZE)));
-float mc[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(VM_PAGE_SIZE)));
+float ma[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(SGEMM_PAGE_SIZE)));
+float mb[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(SGEMM_PAGE_SIZE)));
+float mc[MATX_SIZE][MATX_SIZE] __attribute__ ((aligned(SGEMM_PAGE_SIZE)));
 
 static void fprint_matx(FILE* const out, const float (&mat)[MATX_SIZE][MATX_SIZE]) {
 	for (size_t i = 0; i < sizeof(mat) / sizeof(mat[0]); ++i) {

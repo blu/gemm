@@ -47,7 +47,7 @@ Best results measured in SP flops/clock by the formula:
 | --------------------------- | ----------------- | --------- | -------------------- | -------- | -------- | --------------------------------------------------------------------------- |
 | AMD C60 (Bobcat)            | 2-way             | 8.53      | 512 KB               | 1.94     | 1.47     | g++     4.8, ALT = 1, PREFETCH = 2560, SSE2 intrinsics, 1.33GHz             |
 | Intel Core2 T5600           | 4-way             | 5.33      | 2 MB                 | 3.31     | 2.82     | clang++ 3.4, ALT = 1, PREFETCH = 4096, SSE2 intrinsics, 1.83GHz             |
-| Intel Core2 P8600           | 4-way             | 8.53      | 3 MB            [^2] | 4.86     | 4.14     | apple clang 8.1, ALT = 1, PREFETCH = 2048, SSE2 intrinsics, 2.40GHz         |
+| Intel Core2 P8600           | 4-way             | 8.53      | 3 MB            [^2] | 4.86     | 4.14     | apple clang++ 8.1, ALT = 1, PREFETCH = 2048, SSE2 intrinsics, 2.40GHz       |
 | Intel E5-2687W (SNB)        | 8-way             | 25.6      | 20 MB           [^2] | 13.79    | 10.17    | clang++ 3.6, ALT = 3, PREFETCH = 3584, AVX256 intrinsics, 3.1GHz            |
 | Intel E5-2687W (SNB)        | 8-way             | 25.6      | 20 MB           [^2] | 14.27    | 10.25    | g++     4.8, ALT = 3, PREFETCH = 3584, AVX256 intrinsics, 3.1GHz            |
 | Intel E3-1270v2 (IVB)       | 8-way             | 25.6      | 8 MB            [^2] | 13.40    | 11.05    | clang++ 3.6, ALT = 3, PREFETCH = 3072, AVX256 intrinsics, 1.6GHz            |
@@ -79,6 +79,7 @@ Best results measured in SP flops/clock by the formula:
 | Fujitsu armv8.2 (A64fx)     | 16-way            | 256       | 8 MB            [^2] | 13.32    | 13.46    | armclang++ 20.3, ALT = 11, PREFETCH=3584, SVE intrinsics, 2.2GHz [^6]       |
 | Fujitsu armv8.2 (A64fx)     | 16-way            | 256       | 8 MB            [^2] | 28.20    | 26.28    | armclang++ 20.3, ALT = 12, PREFETCH=4608, SVE intrinsics, 2.2GHz [^6]       |
 | Fujitsu armv8.2 (A64fx)     | 16-way            | 256       | 8 MB            [^2] | 39.64    | 36.17    | armclang++ 20.3, ALT = 13, PREFETCH=3072, SVE intrinsics, 2.2GHz            |
+| Apple armv8.4 (Firestorm)   | 4-way             | 58        | 12 MB           [^2] | 30.97    | 22.17    | apple clang++ 12.0, ALT = 7, PREFETCH=3072, ASIMD2 intrinsics, 3.2GHz [^10] |
 | Baikal-T1 (MIPS P5600)      | 4-way             | 6.4       | 1 MB                 | 3.85     | 2.00     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^7]          |
 | Baikal-T1 (MIPS P5600)      | 4-way             | 6.4       | 1 MB                 | 3.74     | 2.09     | g++     7.3, ALT = 8, PREFETCH = 4096, MSA intrinsics, 1.2GHz [^7] [^8]     |
 
@@ -91,3 +92,4 @@ Best results measured in SP flops/clock by the formula:
 [^7]: Large variance in the 512x512 times -- best result listed.  
 [^8]: Non-native compiler tuning -mtune=mips32r5.  
 [^9]: Core part of AWS EC2 instance.  
+[^10]: Prefetch makes little difference.  
