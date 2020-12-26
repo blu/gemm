@@ -53,7 +53,7 @@ if [[ $UNAME_MACHINE == "aarch64" ]]; then
 elif [[ $UNAME_MACHINE == "arm64" ]]; then
 
 	CXXFLAGS+=(
-		-DSGEMM_PAGE_SIZE=16384
+		-DSGEMM_PAGE_SIZE=`sysctl hw.pagesize | sed 's/^hw.pagesize: //g'`
 		-DCACHELINE_SIZE=`sysctl hw.cachelinesize | sed 's/^hw.cachelinesize: //g'`
 		-march=armv8.4-a
 		-mtune=native
