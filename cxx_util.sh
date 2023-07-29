@@ -98,7 +98,7 @@ function cxx_uarch_arm() {
 			CXXFLAGS+=(
 				-march=armv7-a
 				-mtune=cortex-a8
-				-DCACHELINE_SIZE=32
+				-DCACHELINE_SIZE=64
 			)
 		elif [ `echo $UARCH | grep -c 0xc07` -ne 0 ]; then # cortex-a7
 			CXXFLAGS+=(
