@@ -74,19 +74,19 @@ function cxx_uarch_arm() {
 			CXXFLAGS+=(
 				-march=armv7-a
 				-mtune=cortex-a15
-				-DCACHELINE_SIZE=32
+				-DCACHELINE_SIZE=64
 			)
 		elif [ `echo $UARCH | grep -c 0xc0e` -ne 0 ]; then # cortex-a17
 			CXXFLAGS+=(
 				-march=armv7-a
 				-mtune=cortex-a17
-				-DCACHELINE_SIZE=32
+				-DCACHELINE_SIZE=64
 			)
 		elif [ `echo $UARCH | grep -c 0xc0d` -ne 0 ]; then # cortex-a12
 			CXXFLAGS+=(
 				-march=armv7-a
 				-mtune=cortex-a12
-				-DCACHELINE_SIZE=32
+				-DCACHELINE_SIZE=64
 			)
 		elif [ `echo $UARCH | grep -c 0xc09` -ne 0 ]; then # cortex-a9
 			CXXFLAGS+=(
