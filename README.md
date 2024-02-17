@@ -73,7 +73,8 @@ Best results measured in SP flops/clock by the formula:
 | Snapdragon 835 (Cortex-A73) | 4-way             | 14.93     | 2 MB                 | 5.93     | 3.07     | clang++ 9.0, ALT = 7, PREFETCH = 2048, ASIMD2 intrinsics, 2.55GHz             |
 | Snapdragon 835 (Cortex-A73) | 4-way             | 14.93     | 2 MB                 | 5.43     | 3.92     | clang++ 6.0, ALT = 6, PREFETCH = 2048, ASIMD2 intrinsics, 2.55GHz [^4]        |
 | Snapdragon SQ1 (Cortex-A76) | 4-way             | 34.13     | 4 MB            [^2] | 15.29    | 6.79     | clang++ 9.0, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 3.0GHz              |
-| BCM2712 (Cortex-A76)        | 4-way             | 17.07     | 2 MB                 | 15.32    | 8.26     | clang++ 13.0, ALT = 7, PREFETCH = 4096, ASIMD2 intrinsics, 2.4GHz             |
+| Snapdragon SQ1 (Cortex-A76) | 4-way             | 34.13     | 4 MB            [^2] | 15.27    | 6.87     | clang++-18.0, ALT = 7, PREFETCH = 1536, ASIMD2 intrinsics, 3.0GHz             |
+| BCM2712 (Cortex-A76)        | 4-way             | 17.07     | 2 MB                 | 15.33    | 8.26     | clang++ 13.0, ALT = 7, PREFETCH = 4096, ASIMD2 intrinsics, 2.4GHz             |
 | NVIDIA Orin (Cortex-A78AE)  | 4-way             | 23        | 6 MB            [^2] | 15.73    | 11.19    | clang++ 11.0, ALT = 7, PREFETCH = 4096, ASIMD2 intrinsics, 2.2GHz             |
 | NVIDIA armv8.2 (Carmel)     | 4-way             | 51.2      | 4 MB            [^2] | 13.49    | 6.90     | clang++ 9.0, ALT = 7, PREFETCH = 3584, ASIMD2 intrinsics, 1.91GHz             |
 | Fujitsu armv8.2 (A64fx)     | 16-way            | 256       | 8 MB            [^2] | 13.86    | 13.33    | g++     10.2, ALT = 11, PREFETCH = 4096, SVE intrinsics, 2.2GHz [^6]          |
