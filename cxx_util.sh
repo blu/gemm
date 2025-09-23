@@ -73,7 +73,7 @@ function cxx_uarch_arm() {
 		elif [ `echo $UARCH | grep -c 0xd01` -ne 0 ]; then # cortex-a32
 			CXXFLAGS+=(
 				-march=armv8-a
-				-mcpu=cortex-a32
+				-mtune=cortex-a32
 				-DCACHELINE_SIZE=64
 			)
 		elif [ `echo $UARCH | grep -c 0xc0f` -ne 0 ]; then # cortex-a15
@@ -123,7 +123,7 @@ function cxx_uarch_arm() {
 		if   [ `echo $UARCH | grep -c 0x001` -ne 0 ]; then # a64fx
 			CXXFLAGS+=(
 				-march=armv8.2-a+sve
-				-mcpu=a64fx
+				-mtune=a64fx
 				-DCACHELINE_SIZE=128
 			)
 		else
