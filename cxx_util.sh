@@ -135,10 +135,10 @@ function cxx_uarch_arm() {
 		fi
 	elif [[ $VENDOR == 0x51 ]]; then # Qualcomm
 		# in order of preference, in case of big.LITTLE
-		if   [ `echo $UARCH | grep -c 0x001` -ne 0 ]; then # oryon
+		if   [ `echo $UARCH | grep -c 0x001` -ne 0 ]; then # oryon 1
 			CXXFLAGS+=(
 				-march=armv8.4-a
-				-mtune=cyclone
+				-mtune=oryon-1
 				-DCACHELINE_SIZE=64
 			)
 		elif [ `echo $UARCH | grep -c 0x804` -ne 0 ]; then # kryo 4xx gold
