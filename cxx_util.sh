@@ -10,7 +10,19 @@ function cxx_uarch_arm() {
 
 	if   [[ $VENDOR == 0x41 ]]; then # Arm Holdings
 		# in order of preference, in case of big.LITTLE
-		if   [ `echo $UARCH | grep -c 0xd42` -ne 0 ]; then # cortex-a78AE
+		if   [ `echo $UARCH | grep -c 0xd85` -ne 0 ]; then # cortex-x925
+			CXXFLAGS+=(
+				-march=armv9.2-a
+				-mtune=cortex-x925
+				-DCACHELINE_SIZE=64
+			)
+		elif [ `echo $UARCH | grep -c 0xd87` -ne 0 ]; then # cortex-a725
+			CXXFLAGS+=(
+				-march=armv9.2-a
+				-mtune=cortex-a725
+				-DCACHELINE_SIZE=64
+			)
+		elif [ `echo $UARCH | grep -c 0xd42` -ne 0 ]; then # cortex-a78AE
 			CXXFLAGS+=(
 				-march=armv8.2-a
 				-mtune=cortex-a78
